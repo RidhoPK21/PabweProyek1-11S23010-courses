@@ -1,6 +1,8 @@
+// src/App.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import PrivateRoute from "./components/PrivateRoute"; // Import PrivateRoute
 import LoginPage from "./features/auth/pages/LoginPage";
 import RegisterPage from "./features/auth/pages/RegisterPage";
 import CourseListPage from "./features/courses/pages/CourseListPage";
@@ -13,13 +15,43 @@ function App() {
     <>
       <Navbar />
       <Routes>
+        {/* Rute Publik */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/" element={<CourseListPage />} />
-        <Route path="/courses/:id" element={<CourseDetailPage />} />
-        <Route path="/add-course" element={<AddCoursePage />} />
-        <Route path="/update-course/:id" element={<UpdateCoursePage />} />
+        {/* Rute yang Dilindungi */}
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <CourseListPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/courses/:id"
+          element={
+            <PrivateRoute>
+              <CourseDetailPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/add-course"
+          element={
+            <PrivateRoute>
+              <AddCoursePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/update-course/:id"
+          element={
+            <PrivateRoute>
+              <UpdateCoursePage />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </>
   );

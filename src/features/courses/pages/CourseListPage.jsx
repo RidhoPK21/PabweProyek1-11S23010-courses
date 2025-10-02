@@ -1,5 +1,6 @@
+// src/features/courses/pages/CourseListPage.jsx
 import React, { useEffect, useState } from "react";
-import api from "../../../api/authApi";
+import CourseApi from "../../../api/CourseApi";
 import CourseCard from "../components/CourseCard";
 import { Link } from "react-router-dom";
 
@@ -10,21 +11,20 @@ export default function CourseListPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await api.get("/courses");
+        const res = await CourseApi.getCourses();
+        console.log("📦 Get Courses Response:", res);
 
-        console.log("📥 API Response:", res.data);
-
-        // API Delcom biasanya: { success, message, data: [ ... ] }
+        // Sesuaikan dengan struktur data dari API Delcom
         let data = [];
-        if (Array.isArray(res.data.data)) {
-          data = res.data.data;
+        if (Array.isArray(res.data)) {
+          data = res.data;
+        } else if (res.data && Array.isArray(res.data.courses)) {
+          data = res.data.courses;
         }
+
         setCourses(data);
       } catch (err) {
-        console.error(
-          "❌ Error fetch courses:",
-          err.response?.data || err.message
-        );
+        console.error("❌ Error fetch courses:", err.message);
       } finally {
         setLoading(false);
       }

@@ -1,24 +1,29 @@
+// src/features/courses/pages/UpdateCoursePage.jsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import api from "../../../api/authApi";
+import { useParams, useNavigate } from "react-router-dom"; // ✅ Tambah useNavigate
+import CourseApi from "../../../api/CourseApi"; // ✅ Ganti ke CourseApi
 import CourseForm from "../components/CourseForm";
 
 export default function UpdateCoursePage() {
   const { id } = useParams();
+  const navigate = useNavigate(); // ✅ Inisialisasi navigate
   const [course, setCourse] = useState(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    api.get(`/courses/${id}`).then((res) => setCourse(res.data.data));
+    // ✅ Gunakan CourseApi untuk mengambil data awal
+    CourseApi.getCourseById(id).then((res) => setCourse(res.data));
   }, [id]);
 
-  const handleUpdate = async (data) => {
+  const handleUpdate = async (formData) => {
     try {
-      await api.put(`/courses/${id}`, data);
+      // ✅ Panggil CourseApi.updateCourse
+      await CourseApi.updateCourse(id, formData);
       setMessage("✅ Course berhasil diupdate!");
+      setTimeout(() => navigate("/"), 1500); // Redirect setelah update
     } catch (err) {
-      setMessage("❌ Gagal update course");
-      console.error(err.response?.data || err.message);
+      setMessage("❌ Gagal update course: " + err.message);
+      console.error(err);
     }
   };
 

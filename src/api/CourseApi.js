@@ -22,27 +22,20 @@ const CourseApi = (() => {
       formData.append("cover", data.cover);
     }
 
-    console.log("📤 Sending form data:", [...formData.entries()]);
-
     const res = await apiHelper.fetchData(BASE_URL, {
       method: "POST",
       body: formData,
-      // jangan set Content-Type → biar browser set otomatis
     });
 
     return res.json();
   }
 
-  async function updateCourse(id, data) {
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    if (data.cover) {
-      formData.append("cover", data.cover);
-    }
+  async function updateCourse(id, formData) {
+    // Tambahkan _method 'PUT' jika backend memerlukannya untuk FormData
+    formData.append("_method", "PUT");
 
     const res = await apiHelper.fetchData(`${BASE_URL}/${id}`, {
-      method: "POST", // biasanya PATCH/PUT, cek API docs
+      method: "POST", // Tetap POST, karena beberapa framework handle PUT/PATCH via POST dengan _method
       body: formData,
     });
 
