@@ -1,35 +1,43 @@
 // src/features/courses/pages/CourseDetailPage.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom"; // ✅ DIPERBAIKI: hanya satu tanda hubung
 import CourseApi from "../../../api/CourseApi";
+import ContentManager from "../components/ContentManager";
+import StudentManager from "../components/StudentManager";
 
 export default function CourseDetailPage() {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const loadCourse = async () => {
+    try {
+      setLoading(true);
+      const res = await CourseApi.getCourseById(id);
+      if (res.success) {
+        setCourse(res.data);
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error("❌ Error fetch course detail:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await CourseApi.getCourseById(id);
-        if (res.success) {
-          setCourse(res.data);
-        } else {
-          throw new Error(res.message);
-        }
-      } catch (err) {
-        console.error("❌ Error fetch course detail:", err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    loadCourse();
   }, [id]);
 
   if (loading) return <div className="container mt-5">Loading...</div>;
+  if (error)
+    return <div className="container mt-5 alert alert-danger">{error}</div>;
   if (!course)
     return (
-      <div className="container mt-5 alert alert-danger">
+      <div className="container mt-5 alert alert-warning">
         Course tidak ditemukan.
       </div>
     );
@@ -44,7 +52,8 @@ export default function CourseDetailPage() {
       <Link to="/" className="btn btn-secondary mb-3">
         &larr; Kembali ke Daftar
       </Link>
-      <div className="card">
+
+      <div className="card mb-4">
         <img
           src={coverUrl}
           className="card-img-top"
@@ -56,6 +65,23 @@ export default function CourseDetailPage() {
           <p className="card-text" style={{ whiteSpace: "pre-wrap" }}>
             {course.description}
           </p>
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="col-md-8">
+          <ContentManager
+            contents={course.contents || []}
+            courseId={course.id}
+            onDataChange={loadCourse}
+          />
+        </div>
+        <div className="col-md-4">
+          <StudentManager
+            students={course.students || []}
+            courseId={course.id}
+            onDataChange={loadCourse}
+          />
         </div>
       </div>
     </div>
