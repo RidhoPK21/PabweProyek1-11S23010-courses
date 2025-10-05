@@ -12,6 +12,7 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Hanya satu fungsi ini yang akan kita gunakan untuk memuat dan me-refresh semua data.
   const loadCourse = async () => {
     try {
       const res = await CourseApi.getCourseById(id);
@@ -23,7 +24,7 @@ export default function CourseDetailPage() {
     } catch (err) {
       setError(err.message);
     } finally {
-      // Hanya set loading false pada pemanggilan awal
+      // Pastikan loading di-set false hanya pada load awal
       if (loading) setLoading(false);
     }
   };
