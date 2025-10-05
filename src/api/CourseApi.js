@@ -85,19 +85,16 @@ const CourseApi = (() => {
     return res.json();
   }
 
-  // async function getContentsForCourse(courseId) {
-  //   const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/contents`); // <-- Hapus '/' dari sini
-  //   return res.json();
-  // }
   // --- Content Management ---
-async function addContent(courseId, contentData) {
-  const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/contents/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(contentData),
-  });
-  return res.json(); // <-- Ini penting, karena kita akan menggunakan hasilnya
-}
+  async function addContent(courseId, contentData) {
+    // PERBAIKAN: Menghapus garis miring di akhir URL
+    const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/contents`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(contentData),
+    });
+    return res.json();
+  }
 
   async function getContentById(courseId, contentId) {
     const res = await apiHelper.fetchData(
@@ -146,7 +143,6 @@ async function addContent(courseId, contentData) {
     changeCover,
     deleteCourse,
     addStudent,
-   // getContentsForCourse,
     deleteStudent,
     changeStudentRating,
     addContent,

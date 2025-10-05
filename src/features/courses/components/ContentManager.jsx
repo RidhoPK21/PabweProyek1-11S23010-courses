@@ -34,10 +34,11 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
   const handleAddContent = async (e) => {
     e.preventDefault();
     try {
+      // PERBAIKAN: Mengubah 'youtube' menjadi 'youtube_url' agar sesuai dengan API
       const payload = {
         title: newTitle,
         description: newDescription,
-        youtube: newVideoUrl,
+        youtube_url: newVideoUrl,
       };
       const res = await CourseApi.addContent(courseId, payload);
 
