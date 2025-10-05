@@ -1,9 +1,10 @@
 // src/features/courses/pages/CourseDetailPage.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom"; // ✅ DIPERBAIKI: hanya satu tanda hubung
+import { useParams, Link } from "react-router-dom";
 import CourseApi from "../../../api/CourseApi";
 import ContentManager from "../components/ContentManager";
 import StudentManager from "../components/StudentManager";
+import ChangeCover from "../components/ChangeCover";
 
 export default function CourseDetailPage() {
   const { id } = useParams();
@@ -13,22 +14,22 @@ export default function CourseDetailPage() {
 
   const loadCourse = async () => {
     try {
-      setLoading(true);
       const res = await CourseApi.getCourseById(id);
       if (res.success) {
         setCourse(res.data);
       } else {
-        throw new Error(res.message);
+        throw new Error(res.message || "Gagal memuat data kursus.");
       }
     } catch (err) {
       setError(err.message);
-      console.error("❌ Error fetch course detail:", err.message);
     } finally {
-      setLoading(false);
+      // Hanya set loading false pada pemanggilan awal
+      if (loading) setLoading(false);
     }
   };
 
   useEffect(() => {
+    setLoading(true);
     loadCourse();
   }, [id]);
 
@@ -68,18 +69,20 @@ export default function CourseDetailPage() {
         </div>
       </div>
 
+      <ChangeCover courseId={id} onUploadSuccess={loadCourse} />
+
       <div className="row">
         <div className="col-md-8">
           <ContentManager
             contents={course.contents || []}
-            courseId={course.id}
+            courseId={id}
             onDataChange={loadCourse}
           />
         </div>
         <div className="col-md-4">
           <StudentManager
             students={course.students || []}
-            courseId={course.id}
+            courseId={id}
             onDataChange={loadCourse}
           />
         </div>
