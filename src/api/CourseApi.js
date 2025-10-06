@@ -2,17 +2,16 @@
 import apiHelper from "../helpers/apiHelper";
 
 const CourseApi = (() => {
-  // PERBAIKAN UTAMA: Gunakan proxy '/api' dari vite.config.js
   const BASE_URL = `/api/courses`;
+
   // --- Course Management ---
   async function getCourses() {
-    // PERBAIKAN: Parsing JSON dan kembalikan isinya, bukan objek Response mentah
     const response = await apiHelper.fetchData(BASE_URL);
     const resJson = await response.json();
     if (!resJson.success) {
       throw new Error(resJson.message);
     }
-    return resJson; // Kembalikan seluruh objek JSON { success, message, data }
+    return resJson;
   }
 
   async function getCourseById(id) {
@@ -97,7 +96,7 @@ const CourseApi = (() => {
   // --- Content Management ---
   async function addContent(courseId, contentData) {
     const response = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents`,
+      `${BASE_URL}/${courseId}/contents`, // ✅ FIX: Endpoint harus plural
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,14 +112,14 @@ const CourseApi = (() => {
 
   async function getContentById(courseId, contentId) {
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents/${contentId}`
+      `${BASE_URL}/${courseId}/contents/${contentId}` // ✅ FIX: Endpoint harus plural
     );
     return res.json();
   }
 
   async function updateContent(courseId, contentId, contentData) {
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents/${contentId}`,
+      `${BASE_URL}/${courseId}/contents/${contentId}`, // ✅ FIX: Endpoint harus plural
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -132,7 +131,7 @@ const CourseApi = (() => {
 
   async function deleteContent(courseId, contentId) {
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents/${contentId}`,
+      `${BASE_URL}/${courseId}/contents/${contentId}`, // ✅ FIX: Endpoint harus plural
       { method: "DELETE" }
     );
     return res.json();
@@ -140,7 +139,7 @@ const CourseApi = (() => {
 
   async function changeContentStatus(courseId, contentId, statusData) {
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents/${contentId}/status`,
+      `${BASE_URL}/${courseId}/contents/${contentId}/status`, // ✅ FIX: Endpoint harus plural
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -148,6 +147,18 @@ const CourseApi = (() => {
       }
     );
     return res.json();
+  }
+
+  async function getContentsByCourseId(courseId) {
+    const response = await apiHelper.fetchData(
+      `${BASE_URL}/${courseId}/contents`,
+      { method: "GET" } // ✅ Tambahkan metode GET secara eksplisit
+    );
+    const resJson = await response.json();
+    if (!resJson.success) {
+      throw new Error(resJson.message);
+    }
+    return resJson;
   }
 
   return {
@@ -165,6 +176,7 @@ const CourseApi = (() => {
     updateContent,
     deleteContent,
     changeContentStatus,
+    getContentsByCourseId,
   };
 })();
 

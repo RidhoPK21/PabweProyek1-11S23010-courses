@@ -12,32 +12,37 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const loadCourse = async () => {
-    // --- LANGKAH DEBUG 1: Pastikan fungsi ini terpanggil ---
-    console.log("✅ FUNGSI loadCourse DI CourseDetailPage TERPANGGIL!");
-    // ----------------------------------------------------
+    const loadCourse = async () => {
+      // --- Langkah ini TIDAK menghasilkan 405 ---
+      console.log("✅ FUNGSI loadCourse DI CourseDetailPage TERPANGGIL!");
+      // ------------------------------------------
 
-    setLoading(true);
-    setError("");
-    try {
-      const res = await CourseApi.getCourseById(id);
-      console.log("📦 DATA MENTAH DARI API:", res); // Kita log seluruh respons
+      setLoading(true);
+      setError("");
+      try {
+        // Hanya panggil API utama detail course
+        const res = await CourseApi.getCourseById(id);
+        console.log("📦 DATA MENTAH DARI API:", res);
 
-      if (res.success) {
-        setCourse(res.data);
-      } else {
-        throw new Error(res.message || "Gagal memuat data kursus.");
+        if (res.success) {
+          const courseData = {
+            ...res.data,
+            contents: res.data.contents || [], // Jika API tidak mengembalikannya, inisialisasi sebagai array kosong
+          };
+          setCourse(courseData);
+        } else {
+          throw new Error(res.message || "Gagal memuat data kursus.");
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  useEffect(() => {
-    loadCourse();
-  }, [id]);
+    useEffect(() => {
+      loadCourse();
+    }, [id]);
 
   if (loading) return <div className="container mt-5">Loading...</div>;
   if (error)
