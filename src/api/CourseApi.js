@@ -2,17 +2,26 @@
 import apiHelper from "../helpers/apiHelper";
 
 const CourseApi = (() => {
-  const BASE_URL = `${import.meta.env.VITE_DELCOM_BASEURL}/courses`;
-
+  // PERBAIKAN UTAMA: Gunakan proxy '/api' dari vite.config.js
+  const BASE_URL = `/api/courses`;
   // --- Course Management ---
   async function getCourses() {
-    const res = await apiHelper.fetchData(BASE_URL);
-    return res.json();
+    // PERBAIKAN: Parsing JSON dan kembalikan isinya, bukan objek Response mentah
+    const response = await apiHelper.fetchData(BASE_URL);
+    const resJson = await response.json();
+    if (!resJson.success) {
+      throw new Error(resJson.message);
+    }
+    return resJson; // Kembalikan seluruh objek JSON { success, message, data }
   }
 
   async function getCourseById(id) {
-    const res = await apiHelper.fetchData(`${BASE_URL}/${id}`);
-    return res.json();
+    const response = await apiHelper.fetchData(`${BASE_URL}/${id}`);
+    const resJson = await response.json();
+    if (!resJson.success) {
+      throw new Error(resJson.message);
+    }
+    return resJson;
   }
 
   async function addCourse(data) {
@@ -87,13 +96,19 @@ const CourseApi = (() => {
 
   // --- Content Management ---
   async function addContent(courseId, contentData) {
-    // PERBAIKAN: Menghapus garis miring di akhir URL
-    const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/contents`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(contentData),
-    });
-    return res.json();
+    const response = await apiHelper.fetchData(
+      `${BASE_URL}/${courseId}/contents`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contentData),
+      }
+    );
+    const resJson = await response.json();
+    if (!resJson.success) {
+      throw new Error(resJson.message);
+    }
+    return resJson;
   }
 
   async function getContentById(courseId, contentId) {

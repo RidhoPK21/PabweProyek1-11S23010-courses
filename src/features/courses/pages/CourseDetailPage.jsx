@@ -12,10 +12,17 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Hanya satu fungsi ini yang akan kita gunakan untuk memuat dan me-refresh semua data.
   const loadCourse = async () => {
+    // --- LANGKAH DEBUG 1: Pastikan fungsi ini terpanggil ---
+    console.log("✅ FUNGSI loadCourse DI CourseDetailPage TERPANGGIL!");
+    // ----------------------------------------------------
+
+    setLoading(true);
+    setError("");
     try {
       const res = await CourseApi.getCourseById(id);
+      console.log("📦 DATA MENTAH DARI API:", res); // Kita log seluruh respons
+
       if (res.success) {
         setCourse(res.data);
       } else {
@@ -24,13 +31,11 @@ export default function CourseDetailPage() {
     } catch (err) {
       setError(err.message);
     } finally {
-      // Pastikan loading di-set false hanya pada load awal
-      if (loading) setLoading(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    setLoading(true);
     loadCourse();
   }, [id]);
 
@@ -56,6 +61,7 @@ export default function CourseDetailPage() {
       </Link>
 
       <div className="card mb-4">
+        {/* ... sisa JSX ... */}
         <img
           src={coverUrl}
           className="card-img-top"
