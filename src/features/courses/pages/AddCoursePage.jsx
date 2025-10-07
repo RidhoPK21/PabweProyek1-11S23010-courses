@@ -35,7 +35,7 @@ export default function AddCoursePage() {
       setMessage("✅ " + res.message);
 
       // redirect setelah 1 detik
-      setTimeout(() => navigate("/courses"), 1000);
+      setTimeout(() => navigate("/"), 1000);
     } catch (err) {
       setMessage("❌ Gagal menambahkan course: " + err.message);
       console.error("❌ ERROR detail:", err);

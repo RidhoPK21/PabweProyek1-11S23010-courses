@@ -14,17 +14,14 @@ const CourseApi = (() => {
     return resJson;
   }
 
-async function getCourseById(id) {
-  // ✅ PERBAIKAN: Hapus manual cache-buster. Sekarang ditangani di apiHelper.js
-  const url = `${BASE_URL}/${id}`;
-
-  const response = await apiHelper.fetchData(url);
-  const resJson = await response.json();
-  if (!resJson.success) {
-    throw new Error(resJson.message);
+  async function getCourseById(id) {
+    const response = await apiHelper.fetchData(`${BASE_URL}/${id}`);
+    const resJson = await response.json();
+    if (!resJson.success) {
+      throw new Error(resJson.message);
+    }
+    return resJson;
   }
-  return resJson;
-}
 
   async function addCourse(data) {
     const formData = new FormData();
@@ -80,17 +77,19 @@ async function getCourseById(id) {
     return resJson;
   }
 
-async function addStudent(courseId) {
-  // ✅ PERBAIKAN: Tidak perlu parameter data, karena menggunakan token
+  // Mengembalikan fungsi ke versi yang lebih sederhana, tidak menerima studentData
+async function addStudent(courseId, studentData) {
+  // Kini menerima studentData
+  const urlEncodedBody = new URLSearchParams(studentData);
+
   const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    // Body tidak diperlukan karena API menggunakan token
+    body: urlEncodedBody, // MENGIRIM PAYLOAD user_id
   });
-  const resJson = await res.json(); // Ambil JSON response
-
-  // ✅ PERBAIKAN KRITIS: Cek status sukses API POST
+  const resJson = await res.json();
   if (!resJson.success) {
+    // Pastikan error ditangkap jika server menolak
     throw new Error(resJson.message || "Gagal mendaftar ke kursus.");
   }
   return resJson;
@@ -103,19 +102,19 @@ async function addStudent(courseId) {
     return res.json();
   }
 
-  // ✅ Fungsi ini untuk mengubah rating PENGGUNA SAAT INI
-async function changeMyRating(courseId, ratingData) {
-  const urlEncodedBody = new URLSearchParams(ratingData);
-  const res = await apiHelper.fetchData(
-    `${BASE_URL}/${courseId}/students/ratings`, // URL sesuai dokumentasi
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: urlEncodedBody,
-    }
-  );
-  return res.json();
-}
+  // Mengembalikan fungsi changeMyRating ke versi sebelum perbaikan URL
+  async function changeMyRating(courseId, ratingData) {
+    const urlEncodedBody = new URLSearchParams(ratingData);
+    const res = await apiHelper.fetchData(
+      `${BASE_URL}/${courseId}/students/ratings`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: urlEncodedBody,
+      }
+    );
+    return res.json();
+  }
 
   // --- Content Management ---
   async function addContent(courseId, contentData) {

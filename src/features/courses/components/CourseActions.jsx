@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import CourseApi from "../../../api/CourseApi";
 
 function CourseActions({ course, onDataChange }) {
-  // useEffect untuk sinkronisasi form sudah ditambahkan saat debugging
   const [rating, setRating] = useState(course.my_ratings?.ratings || 0);
   const [comment, setComment] = useState(course.my_ratings?.comment || "");
 
@@ -17,21 +16,24 @@ function CourseActions({ course, onDataChange }) {
     }
   }, [course]);
 
-  // ID hardcoded placeholder - INI ADALAH SUMBER MASALAH UTAMA ANDA
-  const currentUserId = 86;
+  // ✅ ID Pengguna Anda
+  const currentUserId = 162;
 
+  // ✅ FIXED: Menggunakan Number() untuk perbandingan type-safe (mengatasi string vs number)
   const isEnrolled =
-    course.students && course.students.some((s) => s.id === currentUserId);
+    course.students &&
+    course.students.some((s) => s.id === Number(currentUserId));
 
   const handleJoin = async () => {
     try {
-      // Pemanggilan API yang tidak mengirim payload user_id
+      // ✅ Panggilan API yang sesuai dengan dokumentasi (tanpa payload)
       await CourseApi.addStudent(course.id);
 
       alert("Anda berhasil bergabung ke kursus ini!");
-         setTimeout(() => {
-        onDataChange(); 
-    }, 500); 
+      // Tambahkan timeout untuk mengatasi race condition
+      setTimeout(() => {
+        onDataChange();
+      }, 500);
     } catch (error) {
       alert("Gagal bergabung: " + error.message);
     }
@@ -42,7 +44,9 @@ function CourseActions({ course, onDataChange }) {
       try {
         await CourseApi.leaveCourse(course.id);
         alert("Anda berhasil keluar dari kursus.");
-        onDataChange();
+        setTimeout(() => {
+          onDataChange();
+        }, 500);
       } catch (error) {
         alert("Gagal keluar: " + error.message);
       }

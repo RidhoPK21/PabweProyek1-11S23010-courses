@@ -24,20 +24,16 @@ export default function CourseDetailPage() {
       if (res.success) {
         const actualCourseData = res.data.course || res.data;
 
-        // ✅ PERBAIKAN PENTING: Penanganan daftar siswa yang lebih sederhana
-        // Agar ID selalu terdeteksi sebagai angka.
+        // Penanganan daftar siswa yang menyebabkan status tidak akurat
         const students = (actualCourseData.students || [])
           .map((item) => {
-            const studentId =
-              typeof item === "number"
-                ? item // Jika item adalah angka (misal: [3, 105])
-                : item.id; // Jika item adalah objek (misal: [{id: 3}, ...])
+            const studentId = typeof item === "number" ? item : item.id;
             return {
-              id: Number(studentId), // Pastikan selalu number
-              name: `Siswa ID: ${studentId}`, // Hanya untuk display
+              id: Number(studentId), // Pastikan selalu number untuk perbandingan
+              name: `Siswa ID: ${studentId}`,
             };
           })
-          .filter((student) => student.id); // Filter out null/undefined IDs
+          .filter((student) => student.id);
 
         const courseData = {
           ...actualCourseData,
@@ -105,7 +101,7 @@ export default function CourseDetailPage() {
               {course.ratings.map((rating, index) => (
                 <li key={index} className="list-group-item">
                   <strong>{rating.name}</strong>
-                  <p className="mb-1">Rating: {"‚≠ê".repeat(rating.ratings)}</p>
+                  <p className="mb-1">Rating: {"⭐".repeat(rating.ratings)}</p>
                   <p className="mb-0 fst-italic">"{rating.comment}"</p>
                 </li>
               ))}
