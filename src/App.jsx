@@ -9,7 +9,7 @@ import CourseListPage from "./features/courses/pages/CourseListPage";
 import CourseDetailPage from "./features/courses/pages/CourseDetailPage";
 import AddCoursePage from "./features/courses/pages/AddCoursePage";
 import UpdateCoursePage from "./features/courses/pages/UpdateCoursePage";
-import ContentDetailPage from "./features/courses/pages/ContentDetailPage"; 
+import ContentDetailPage from "./features/courses/pages/ContentDetailPage";
 
 function App() {
   return (

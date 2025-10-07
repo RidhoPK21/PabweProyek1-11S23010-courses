@@ -1,13 +1,9 @@
 // src/features/courses/components/CourseActions.jsx
 import React, { useState, useEffect } from "react";
 import CourseApi from "../../../api/CourseApi";
-// ✅ HAPUS import jwtDecode
 
 function CourseActions({ course, onDataChange }) {
-  // 1. Dapatkan ID pengguna LANGSUNG dari localStorage
-  const currentUserId = localStorage.getItem("user_id"); // ✅ Ambil ID murni
-  const token = localStorage.getItem("token"); // Token tetap diperlukan untuk otentikasi API
-
+  // useEffect untuk sinkronisasi form sudah ditambahkan saat debugging
   const [rating, setRating] = useState(course.my_ratings?.ratings || 0);
   const [comment, setComment] = useState(course.my_ratings?.comment || "");
 
@@ -21,24 +17,21 @@ function CourseActions({ course, onDataChange }) {
     }
   }, [course]);
 
-  // Tentukan status keanggotaan
+  // ID hardcoded placeholder - INI ADALAH SUMBER MASALAH UTAMA ANDA
+  const currentUserId = 86;
+
   const isEnrolled =
-    !!currentUserId &&
-    course.students &&
-    // ✅ Bandingkan ID dari Local Storage (String) dengan ID siswa (Number)
-    course.students.some((s) => s.id === Number(currentUserId));
+    course.students && course.students.some((s) => s.id === currentUserId);
 
   const handleJoin = async () => {
-    if (!currentUserId || !token) {
-      alert("❌ Error: Sesi hilang. Silakan login ulang.");
-      return;
-    }
-
     try {
+      // Pemanggilan API yang tidak mengirim payload user_id
       await CourseApi.addStudent(course.id);
 
       alert("Anda berhasil bergabung ke kursus ini!");
-      onDataChange();
+         setTimeout(() => {
+        onDataChange(); 
+    }, 500); 
     } catch (error) {
       alert("Gagal bergabung: " + error.message);
     }
@@ -72,13 +65,6 @@ function CourseActions({ course, onDataChange }) {
 
   return (
     <div>
-      {/* Tampilkan pesan jika ID pengguna (user_id) hilang */}
-      {!currentUserId && (
-        <div className="alert alert-danger">
-          ⚠️ Sesi hilang. Silakan Login ulang.
-        </div>
-      )}
-
       <div className="card mb-4">
         <div className="card-body">
           <h5 className="card-title">Status Keanggotaan</h5>
@@ -94,11 +80,7 @@ function CourseActions({ course, onDataChange }) {
           ) : (
             <div>
               <p>Anda belum terdaftar di kursus ini.</p>
-              <button
-                className="btn btn-success"
-                onClick={handleJoin}
-                disabled={!currentUserId} // Disabled jika user_id hilang
-              >
+              <button className="btn btn-success" onClick={handleJoin}>
                 Gabung Kursus
               </button>
             </div>
