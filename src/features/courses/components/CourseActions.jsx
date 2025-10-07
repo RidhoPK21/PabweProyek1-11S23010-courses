@@ -1,22 +1,12 @@
 // src/features/courses/components/CourseActions.jsx
 import React, { useState, useEffect } from "react";
 import CourseApi from "../../../api/CourseApi";
-import { jwtDecode } from "jwt-decode";
+// ✅ HAPUS import jwtDecode
 
 function CourseActions({ course, onDataChange }) {
-  // 1. Dapatkan ID pengguna dari token dengan pencarian yang lebih robust
-  const token = localStorage.getItem("token");
-  let currentUserId = null;
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-
-      // ✅ Cari ID pengguna menggunakan kunci 'id' atau 'user_id'
-      currentUserId = decoded.id || decoded.user_id;
-    } catch (e) {
-      console.error("Gagal mendecode token:", e);
-    }
-  }
+  // 1. Dapatkan ID pengguna LANGSUNG dari localStorage
+  const currentUserId = localStorage.getItem("user_id"); // ✅ Ambil ID murni
+  const token = localStorage.getItem("token"); // Token tetap diperlukan untuk otentikasi API
 
   const [rating, setRating] = useState(course.my_ratings?.ratings || 0);
   const [comment, setComment] = useState(course.my_ratings?.comment || "");
@@ -35,18 +25,21 @@ function CourseActions({ course, onDataChange }) {
   const isEnrolled =
     !!currentUserId &&
     course.students &&
-    // Periksa apakah ID user yang login ada di daftar students (lakukan konversi Number)
+    // ✅ Bandingkan ID dari Local Storage (String) dengan ID siswa (Number)
     course.students.some((s) => s.id === Number(currentUserId));
 
   const handleJoin = async () => {
+    if (!currentUserId || !token) {
+      alert("❌ Error: Sesi hilang. Silakan login ulang.");
+      return;
+    }
+
     try {
-      // ✅ Memanggil API addStudent yang sudah ditambahkan cek sukses
       await CourseApi.addStudent(course.id);
 
       alert("Anda berhasil bergabung ke kursus ini!");
-      onDataChange(); // Muat ulang data kursus (sekarang dengan cache-buster)
+      onDataChange();
     } catch (error) {
-      // Jika API POST gagal, error akan dilempar dari CourseApi.js
       alert("Gagal bergabung: " + error.message);
     }
   };
@@ -79,6 +72,13 @@ function CourseActions({ course, onDataChange }) {
 
   return (
     <div>
+      {/* Tampilkan pesan jika ID pengguna (user_id) hilang */}
+      {!currentUserId && (
+        <div className="alert alert-danger">
+          ⚠️ Sesi hilang. Silakan Login ulang.
+        </div>
+      )}
+
       <div className="card mb-4">
         <div className="card-body">
           <h5 className="card-title">Status Keanggotaan</h5>
@@ -94,7 +94,11 @@ function CourseActions({ course, onDataChange }) {
           ) : (
             <div>
               <p>Anda belum terdaftar di kursus ini.</p>
-              <button className="btn btn-success" onClick={handleJoin}>
+              <button
+                className="btn btn-success"
+                onClick={handleJoin}
+                disabled={!currentUserId} // Disabled jika user_id hilang
+              >
                 Gabung Kursus
               </button>
             </div>

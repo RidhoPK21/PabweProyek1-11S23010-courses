@@ -14,18 +14,17 @@ const CourseApi = (() => {
     return resJson;
   }
 
-  async function getCourseById(id) {
-    // Tambahkan timestamp untuk memastikan URL unik dan tidak di-cache
-    const cacheBuster = `t=${Date.now()}`;
-    const url = `${BASE_URL}/${id}?${cacheBuster}`;
+async function getCourseById(id) {
+  // ✅ PERBAIKAN: Hapus manual cache-buster. Sekarang ditangani di apiHelper.js
+  const url = `${BASE_URL}/${id}`;
 
-    const response = await apiHelper.fetchData(url);
-    const resJson = await response.json();
-    if (!resJson.success) {
-      throw new Error(resJson.message);
-    }
-    return resJson;
+  const response = await apiHelper.fetchData(url);
+  const resJson = await response.json();
+  if (!resJson.success) {
+    throw new Error(resJson.message);
   }
+  return resJson;
+}
 
   async function addCourse(data) {
     const formData = new FormData();
@@ -105,18 +104,18 @@ async function addStudent(courseId) {
   }
 
   // ✅ Fungsi ini untuk mengubah rating PENGGUNA SAAT INI
-  async function changeMyRating(courseId, ratingData) {
-    const urlEncodedBody = new URLSearchParams(ratingData);
-    const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/students/ratings`, // URL sesuai dokumentasi
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: urlEncodedBody,
-      }
-    );
-    return res.json();
-  }
+async function changeMyRating(courseId, ratingData) {
+  const urlEncodedBody = new URLSearchParams(ratingData);
+  const res = await apiHelper.fetchData(
+    `${BASE_URL}/${courseId}/students/ratings`, // URL sesuai dokumentasi
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: urlEncodedBody,
+    }
+  );
+  return res.json();
+}
 
   // --- Content Management ---
   async function addContent(courseId, contentData) {

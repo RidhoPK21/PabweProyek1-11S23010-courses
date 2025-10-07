@@ -10,22 +10,38 @@ export default function LoginPage() {
   // State untuk menampilkan pesan error/sukses
   const [message, setMessage] = useState("");
 
-  // State untuk mengontrol tombol loading (diambil dari versi Redux)
+  // State untuk mengontrol tombol loading
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // 1. Mulai loading saat tombol diklik
-    setMessage(""); // Hapus pesan lama
+    setLoading(true);
+    setMessage("");
 
     try {
       // Panggil API
       const loginData = await authApi.postLogin(email, password);
       const token = loginData.token;
 
+      // Ambil ID pengguna: Gunakan user_id atau id sebagai fallback
+      const userId = loginData.user_id || loginData.id;
+
+      // ✅ PERBAIKAN KRITIS: Hanya periksa keberadaan token untuk sukses login
       if (token) {
-        // Simpan token
+        // Simpan token (masih diperlukan untuk otentikasi header API)
         localStorage.setItem("token", token);
+
+        // Simpan ID pengguna: Simpan hanya jika ID ditemukan
+        if (userId) {
+          localStorage.setItem("user_id", userId);
+        } else {
+          // Jika tidak ada ID, hapus user_id lama dan tampilkan peringatan di console
+          localStorage.removeItem("user_id");
+          console.warn(
+            "API GAGAL MEMBERIKAN user_id. Status keanggotaan mungkin tidak berfungsi."
+          );
+        }
+
         setMessage("✅ Login berhasil!");
 
         // Redirect ke halaman utama
@@ -36,6 +52,7 @@ export default function LoginPage() {
         throw new Error("Token tidak ditemukan dalam respons login.");
       }
     } catch (err) {
+      // Ini akan menangani error HTTP atau error dari authApi.postLogin
       setMessage("❌ " + err.message);
       setLoading(false); // 3. Hentikan loading jika terjadi error
     }
@@ -80,7 +97,7 @@ export default function LoginPage() {
         </div>
 
         <div className="text-end">
-          {/* Tampilan tombol kondisional dari versi Redux */}
+          {/* Tampilan tombol kondisional */}
           {loading ? (
             <button className="btn btn-primary" type="button" disabled>
               <span
