@@ -77,7 +77,6 @@ const CourseApi = (() => {
     return resJson;
   }
 
-
   async function addStudent(courseId) {
     const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
       method: "POST",
@@ -94,7 +93,7 @@ const CourseApi = (() => {
     return res.json();
   }
 
-  // ✅ PERBAIKAN: Fungsi ini untuk mengubah rating PENGGUNA SAAT INI
+  // ✅ Fungsi ini untuk mengubah rating PENGGUNA SAAT INI
   async function changeMyRating(courseId, ratingData) {
     const urlEncodedBody = new URLSearchParams(ratingData);
     const res = await apiHelper.fetchData(
@@ -169,7 +168,6 @@ const CourseApi = (() => {
     );
     return res.json();
   }
-
 
   async function changeContentStatus(courseId, contentId, statusData) {
     const res = await apiHelper.fetchData(

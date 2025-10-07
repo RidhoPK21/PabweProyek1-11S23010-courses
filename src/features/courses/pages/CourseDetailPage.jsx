@@ -3,16 +3,16 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import CourseApi from "../../../api/CourseApi";
 import ContentManager from "../components/ContentManager";
+// ✅ PERBAIKAN 1: Hapus impor ganda dan 'StudentManager' yang tidak lagi digunakan
 import CourseActions from "../components/CourseActions";
 import ChangeCover from "../components/ChangeCover";
-import { jwtDecode } from "jwt-decode"; // Harus terinstal: npm install jwt-decode
 
+// ✅ PERBAIKAN 2: Gunakan 'export default' langsung pada deklarasi fungsi
 export default function CourseDetailPage() {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [currentUserId, setCurrentUserId] = useState(null); // Tambah state user ID
 
   const loadCourse = async () => {
     console.log("✅ FUNGSI loadCourse DI CourseDetailPage TERPANGGIL!");
@@ -54,23 +54,6 @@ export default function CourseDetailPage() {
   };
 
   useEffect(() => {
-    // FIXED: Logic to decode token and set currentUserId (HANYA BERJALAN SEKALI SAAT LOAD)
-    const token = localStorage.getItem("token");
-      console.log("Token dari LocalStorage:", token); 
-
-    if (token && token.length > 0) {
-      try {
-        const decodedToken = jwtDecode(token);
-        setCurrentUserId(Number(decodedToken.sub)); // Set ID dan pastikan tipe Number
-      } catch (e) {
-        console.error("❌ Token tidak valid, gagal decode:", e);
-        setCurrentUserId(null);
-      }
-    } else {
-      setCurrentUserId(null);
-    }
-
-    // Panggil loadCourse untuk mengambil data kursus
     loadCourse();
   }, [id]);
 
@@ -84,11 +67,10 @@ export default function CourseDetailPage() {
       </div>
     );
 
-  // FIXED: Defensive coding dengan optional chaining untuk mencegah crash 'reading cover'
   const coverUrl =
-    course?.cover && course.cover.startsWith("http")
+    course.cover && course.cover.startsWith("http")
       ? course.cover
-      : `${import.meta.env.VITE_DELCOM_BASEURL}/storage/${course?.cover}`;
+      : `${import.meta.env.VITE_DELCOM_BASEURL}/storage/${course.cover}`;
 
   return (
     <div className="container mt-4">
@@ -141,16 +123,11 @@ export default function CourseDetailPage() {
           />
         </div>
         <div className="col-md-4">
-          {/* RENDER HANYA JIKA currentUserId SUDAH ADA */}
-          {currentUserId !== null && (
-            <CourseActions
-              course={course}
-              currentUserId={currentUserId} // Kirim ID pengguna ke CourseActions
-              onDataChange={loadCourse}
-            />
-          )}
+          {/* ✅ PERBAIKAN 3: Kirim seluruh objek 'course' sebagai satu prop */}
+          <CourseActions course={course} onDataChange={loadCourse} />
         </div>
       </div>
     </div>
   );
 }
+// Baris 'export default' di bawah tidak diperlukan lagi karena sudah di atas
