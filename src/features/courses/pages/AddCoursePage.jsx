@@ -43,50 +43,50 @@ export default function AddCoursePage() {
   };
 
   return (
-    <div className="container mt-4" style={{ maxWidth: "600px" }}>
-      <h2>Tambah Course</h2>
-      {message && <div className="alert alert-info">{message}</div>}
+    <div className="container mt-5" style={{ maxWidth: "600px" }}>
+      <div className="card p-4">
+        <h2 className="mb-4 fw-bold">Tambah Course Baru</h2>
+        {message && <div className="alert alert-info">{message}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label>Judul</label>
-          <input
-            type="text"
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            className="form-control"
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label>Deskripsi</label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            className="form-control"
-            required
-          ></textarea>
-        </div>
-
-        <div className="mb-3">
-          <label>Cover</label>
-          <input
-            type="file"
-            name="cover"
-            onChange={handleChange}
-            className="form-control"
-            accept="image/*"
-            required
-          />
-        </div>
-
-        <button type="submit" className="btn btn-primary">
-          Tambah
-        </button>
-      </form>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label">Judul</label>
+            <input
+              type="text"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              className="form-control"
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Deskripsi</label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              className="form-control"
+              rows="4"
+              required
+            ></textarea>
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Cover</label>
+            <input
+              type="file"
+              name="cover"
+              onChange={handleChange}
+              className="form-control"
+              accept="image/*"
+              required
+            />
+          </div>
+          <button type="submit" className="btn btn-primary">
+            Tambah
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

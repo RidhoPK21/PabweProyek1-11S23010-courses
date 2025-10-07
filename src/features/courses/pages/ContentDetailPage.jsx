@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import CourseApi from "../../../api/CourseApi";
 
-// Helper function to extract YouTube video ID from URL
 const getYouTubeId = (url) => {
   if (!url) return null;
   const regExp =
@@ -21,7 +20,6 @@ function ContentDetailPage() {
   useEffect(() => {
     const loadContent = async () => {
       setLoading(true);
-      setError("");
       try {
         const res = await CourseApi.getContentById(courseId, contentId);
         if (res.success && res.data.course_content) {
@@ -44,24 +42,28 @@ function ContentDetailPage() {
   if (!content)
     return (
       <div className="container mt-5 alert alert-warning">
-        Sumber ini tidak tersedia
+        Konten tidak ditemukan.
       </div>
     );
 
   const videoId = getYouTubeId(content.youtube);
 
   return (
-    <div className="container mt-4">
-      <Link to={`/courses/${courseId}`} className="btn btn-secondary mb-3">
-        &larr; Kembali ke Detail Kursus
-      </Link>
+    <div className="container mt-5">
+      <div className="mb-4">
+        <Link to={`/courses/${courseId}`} className="btn btn-outline-secondary">
+          &larr; Kembali ke Detail Kursus
+        </Link>
+      </div>
+
       <div className="card">
-        <div className="card-header">
-          <h2>{content.title}</h2>
-        </div>
-        <div className="card-body">
+        <div className="card-body p-4">
+          <h2 className="card-title fw-bold mb-4">{content.title}</h2>
           {videoId ? (
-            <div className="ratio ratio-16x9">
+            <div
+              className="ratio ratio-16x9"
+              style={{ borderRadius: "var(--card-border-radius)" }}
+            >
               <iframe
                 src={`https://www.youtube.com/embed/${videoId}`}
                 title={content.title}
@@ -71,7 +73,9 @@ function ContentDetailPage() {
               ></iframe>
             </div>
           ) : (
-            <p>URL YouTube tidak valid.</p>
+            <p className="alert alert-warning">
+              URL YouTube tidak valid atau tidak tersedia.
+            </p>
           )}
         </div>
       </div>
@@ -79,5 +83,4 @@ function ContentDetailPage() {
   );
 }
 
-// ✅ PASTIKAN BARIS INI ADA DI AKHIR FILE
 export default ContentDetailPage;

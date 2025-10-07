@@ -59,11 +59,7 @@ export default function CourseDetailPage() {
   if (error)
     return <div className="container mt-5 alert alert-danger">{error}</div>;
   if (!course)
-    return (
-      <div className="container mt-5 alert alert-warning">
-        Course tidak ditemukan.
-      </div>
-    );
+    return <div className="container mt-5">Loading course details...</div>;
 
   const coverUrl =
     course.cover && course.cover.startsWith("http")
@@ -71,57 +67,67 @@ export default function CourseDetailPage() {
       : `${import.meta.env.VITE_DELCOM_BASEURL}/storage/${course.cover}`;
 
   return (
-    <div className="container mt-4">
-      <Link to="/" className="btn btn-secondary mb-3">
-        &larr; Kembali ke Daftar
-      </Link>
+    <div className="container mt-5">
+      <div className="mb-4">
+        <Link to="/" className="btn btn-outline-secondary">
+          &larr; Kembali ke Daftar
+        </Link>
+      </div>
 
-      <div className="card mb-4">
+      <div className="card mb-4 overflow-hidden">
         <img
           src={coverUrl}
           className="card-img-top"
           alt={course.title}
           style={{ maxHeight: "400px", objectFit: "cover" }}
         />
-        <div className="card-body">
-          <h1 className="card-title">{course.title}</h1>
-          <p className="card-text" style={{ whiteSpace: "pre-wrap" }}>
+        <div className="card-body p-4">
+          <h1 className="card-title fw-bolder">{course.title}</h1>
+          <p
+            className="card-text text-muted"
+            style={{ whiteSpace: "pre-wrap" }}
+          >
             {course.description}
           </p>
         </div>
       </div>
 
-      <ChangeCover courseId={id} onUploadSuccess={loadCourse} />
-
-      <div className="card mb-4">
-        <div className="card-body">
-          <h2 className="card-title">Ulasan Kursus</h2>
-          {course.ratings && course.ratings.length > 0 ? (
-            <ul className="list-group list-group-flush">
-              {course.ratings.map((rating, index) => (
-                <li key={index} className="list-group-item">
-                  <strong>{rating.name}</strong>
-                  <p className="mb-1">Rating: {"⭐".repeat(rating.ratings)}</p>
-                  <p className="mb-0 fst-italic">"{rating.comment}"</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Belum ada ulasan untuk kursus ini.</p>
-          )}
-        </div>
-      </div>
-
-      <div className="row">
-        <div className="col-md-8">
+      <div className="row g-4">
+        <div className="col-lg-8">
           <ContentManager
             contents={course.contents || []}
             courseId={id}
             onDataChange={loadCourse}
           />
+
+          <div className="card mt-4">
+            <div className="card-body">
+              <h3 className="card-title fw-bold mb-3">Ulasan Kursus</h3>
+              {course.ratings && course.ratings.length > 0 ? (
+                <ul className="list-group list-group-flush">
+                  {course.ratings.map((rating) => (
+                    <li key={rating.id} className="list-group-item px-0">
+                      <strong>{rating.name}</strong>
+                      <p className="mb-1">
+                        Rating: {"⭐".repeat(rating.ratings)}
+                      </p>
+                      <p className="mb-0 fst-italic">"{rating.comment}"</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Belum ada ulasan untuk kursus ini.</p>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="col-md-4">
-          <CourseActions course={course} onDataChange={loadCourse} />
+        <div className="col-lg-4">
+          <div className="sticky-top" style={{ top: "100px" }}>
+            <CourseActions course={course} onDataChange={loadCourse} />
+            <div className="mt-4">
+              <ChangeCover courseId={id} onUploadSuccess={loadCourse} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
