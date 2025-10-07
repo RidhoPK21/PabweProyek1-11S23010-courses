@@ -1,9 +1,23 @@
 // src/features/courses/components/CourseActions.jsx
 import React, { useState, useEffect } from "react";
 import CourseApi from "../../../api/CourseApi";
+import { jwtDecode } from "jwt-decode";
 
-// Harus menerima currentUserId sebagai prop
-function CourseActions({ course, currentUserId, onDataChange }) {
+function CourseActions({ course, onDataChange }) {
+  // 1. Dapatkan ID pengguna dari token dengan pencarian yang lebih robust
+  const token = localStorage.getItem("token");
+  let currentUserId = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+
+      // ✅ Cari ID pengguna menggunakan kunci 'id' atau 'user_id'
+      currentUserId = decoded.id || decoded.user_id;
+    } catch (e) {
+      console.error("Gagal mendecode token:", e);
+    }
+  }
+
   const [rating, setRating] = useState(course.my_ratings?.ratings || 0);
   const [comment, setComment] = useState(course.my_ratings?.comment || "");
 
@@ -17,20 +31,22 @@ function CourseActions({ course, currentUserId, onDataChange }) {
     }
   }, [course]);
 
-  // ✅ PERBAIKAN: Gunakan Number() agar string ID dari JWT sesuai dengan angka dari API
+  // Tentukan status keanggotaan
   const isEnrolled =
+    !!currentUserId &&
     course.students &&
+    // Periksa apakah ID user yang login ada di daftar students (lakukan konversi Number)
     course.students.some((s) => s.id === Number(currentUserId));
 
   const handleJoin = async () => {
     try {
-      // ✅ PERBAIKAN: Kirim ID pengguna sebagai data
-      await CourseApi.addStudent(course.id, { user_id: currentUserId });
+      // ✅ Memanggil API addStudent yang sudah ditambahkan cek sukses
+      await CourseApi.addStudent(course.id);
 
       alert("Anda berhasil bergabung ke kursus ini!");
-      onDataChange();
+      onDataChange(); // Muat ulang data kursus (sekarang dengan cache-buster)
     } catch (error) {
-      // Lebih baik menampilkan error dari server
+      // Jika API POST gagal, error akan dilempar dari CourseApi.js
       alert("Gagal bergabung: " + error.message);
     }
   };
@@ -50,8 +66,6 @@ function CourseActions({ course, currentUserId, onDataChange }) {
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Perhatikan, changeMyRating di CourseApi.js tidak memerlukan currentUserId,
-      // karena API mengasumsikan pengguna yang memberi rating adalah pengguna yang login (berdasarkan token).
       await CourseApi.changeMyRating(course.id, {
         ratings: rating,
         comment,

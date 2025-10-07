@@ -3,11 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import CourseApi from "../../../api/CourseApi";
 import ContentManager from "../components/ContentManager";
-// ✅ PERBAIKAN 1: Hapus impor ganda dan 'StudentManager' yang tidak lagi digunakan
 import CourseActions from "../components/CourseActions";
 import ChangeCover from "../components/ChangeCover";
 
-// ✅ PERBAIKAN 2: Gunakan 'export default' langsung pada deklarasi fungsi
 export default function CourseDetailPage() {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
@@ -15,27 +13,31 @@ export default function CourseDetailPage() {
   const [error, setError] = useState("");
 
   const loadCourse = async () => {
-    console.log("✅ FUNGSI loadCourse DI CourseDetailPage TERPANGGIL!");
+    console.log("FUNGSI loadCourse DI CourseDetailPage TERPANGGIL!");
 
     setLoading(true);
     setError("");
     try {
       const res = await CourseApi.getCourseById(id);
-      console.log("📦 DATA MENTAH DARI API:", res);
+      console.log("DATA MENTAH DARI API:", res);
 
       if (res.success) {
         const actualCourseData = res.data.course || res.data;
 
-        // Mengubah ID numerik siswa menjadi objek { id, name }
+        // ✅ PERBAIKAN PENTING: Penanganan daftar siswa yang lebih sederhana
+        // Agar ID selalu terdeteksi sebagai angka.
         const students = (actualCourseData.students || [])
-          .filter((item) => typeof item === "number" || (item && item.id))
           .map((item) => {
-            const studentId = typeof item === "number" ? item : item.id;
+            const studentId =
+              typeof item === "number"
+                ? item // Jika item adalah angka (misal: [3, 105])
+                : item.id; // Jika item adalah objek (misal: [{id: 3}, ...])
             return {
-              id: studentId,
-              name: `Siswa ID: ${studentId}`,
+              id: Number(studentId), // Pastikan selalu number
+              name: `Siswa ID: ${studentId}`, // Hanya untuk display
             };
-          });
+          })
+          .filter((student) => student.id); // Filter out null/undefined IDs
 
         const courseData = {
           ...actualCourseData,
@@ -103,7 +105,7 @@ export default function CourseDetailPage() {
               {course.ratings.map((rating, index) => (
                 <li key={index} className="list-group-item">
                   <strong>{rating.name}</strong>
-                  <p className="mb-1">Rating: {"⭐".repeat(rating.ratings)}</p>
+                  <p className="mb-1">Rating: {"‚≠ê".repeat(rating.ratings)}</p>
                   <p className="mb-0 fst-italic">"{rating.comment}"</p>
                 </li>
               ))}
@@ -123,11 +125,9 @@ export default function CourseDetailPage() {
           />
         </div>
         <div className="col-md-4">
-          {/* ✅ PERBAIKAN 3: Kirim seluruh objek 'course' sebagai satu prop */}
           <CourseActions course={course} onDataChange={loadCourse} />
         </div>
       </div>
     </div>
   );
 }
-// Baris 'export default' di bawah tidak diperlukan lagi karena sudah di atas

@@ -15,7 +15,11 @@ const CourseApi = (() => {
   }
 
   async function getCourseById(id) {
-    const response = await apiHelper.fetchData(`${BASE_URL}/${id}`);
+    // Tambahkan timestamp untuk memastikan URL unik dan tidak di-cache
+    const cacheBuster = `t=${Date.now()}`;
+    const url = `${BASE_URL}/${id}?${cacheBuster}`;
+
+    const response = await apiHelper.fetchData(url);
     const resJson = await response.json();
     if (!resJson.success) {
       throw new Error(resJson.message);
@@ -77,14 +81,21 @@ const CourseApi = (() => {
     return resJson;
   }
 
-  async function addStudent(courseId) {
-    const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      // Body tidak diperlukan karena API menggunakan token
-    });
-    return res.json();
+async function addStudent(courseId) {
+  // ✅ PERBAIKAN: Tidak perlu parameter data, karena menggunakan token
+  const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    // Body tidak diperlukan karena API menggunakan token
+  });
+  const resJson = await res.json(); // Ambil JSON response
+
+  // ✅ PERBAIKAN KRITIS: Cek status sukses API POST
+  if (!resJson.success) {
+    throw new Error(resJson.message || "Gagal mendaftar ke kursus.");
   }
+  return resJson;
+}
 
   async function leaveCourse(courseId) {
     const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
