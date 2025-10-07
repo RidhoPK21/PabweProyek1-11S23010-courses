@@ -2,33 +2,35 @@
 import React, { useState, useEffect } from "react";
 import CourseApi from "../../../api/CourseApi";
 
+// Harus menerima currentUserId sebagai prop
 function CourseActions({ course, currentUserId, onDataChange }) {
   const [rating, setRating] = useState(course.my_ratings?.ratings || 0);
   const [comment, setComment] = useState(course.my_ratings?.comment || "");
 
-   useEffect(() => {
-     if (course.my_ratings) {
-       setRating(course.my_ratings.ratings || 0);
-       setComment(course.my_ratings.comment || "");
-     } else {
-       // Jika belum ada rating, pastikan form kosong
-       setRating(0);
-       setComment("");
-     }
-   }, [course]);
+  useEffect(() => {
+    if (course.my_ratings) {
+      setRating(course.my_ratings.ratings || 0);
+      setComment(course.my_ratings.comment || "");
+    } else {
+      setRating(0);
+      setComment("");
+    }
+  }, [course]);
 
-  // Asumsikan ID 86 adalah ID pengguna yang sedang login
+  // ✅ PERBAIKAN: Gunakan Number() agar string ID dari JWT sesuai dengan angka dari API
   const isEnrolled =
     course.students &&
     course.students.some((s) => s.id === Number(currentUserId));
 
   const handleJoin = async () => {
     try {
+      // ✅ PERBAIKAN: Kirim ID pengguna sebagai data
       await CourseApi.addStudent(course.id, { user_id: currentUserId });
 
       alert("Anda berhasil bergabung ke kursus ini!");
       onDataChange();
     } catch (error) {
+      // Lebih baik menampilkan error dari server
       alert("Gagal bergabung: " + error.message);
     }
   };
@@ -48,6 +50,8 @@ function CourseActions({ course, currentUserId, onDataChange }) {
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Perhatikan, changeMyRating di CourseApi.js tidak memerlukan currentUserId,
+      // karena API mengasumsikan pengguna yang memberi rating adalah pengguna yang login (berdasarkan token).
       await CourseApi.changeMyRating(course.id, {
         ratings: rating,
         comment,
@@ -121,5 +125,4 @@ function CourseActions({ course, currentUserId, onDataChange }) {
   );
 }
 
-// ✅ PASTIKAN BARIS INI ADA DI AKHIR FILE
 export default CourseActions;
