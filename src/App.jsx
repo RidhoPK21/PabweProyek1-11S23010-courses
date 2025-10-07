@@ -11,6 +11,8 @@ import AddCoursePage from "./features/courses/pages/AddCoursePage";
 import UpdateCoursePage from "./features/courses/pages/UpdateCoursePage";
 import ContentDetailPage from "./features/courses/pages/ContentDetailPage";
 import ProfilePage from "./features/auth/pages/ProfilePage"; 
+import UserListPage from "./features/users/pages/UserListPage"; // 1. Impor halaman baru
+
 
 
 function App() {
@@ -45,6 +47,15 @@ function App() {
           element={
             <PrivateRoute>
               <ContentDetailPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/users"
+          element={
+            <PrivateRoute>
+              <UserListPage />
             </PrivateRoute>
           }
         />

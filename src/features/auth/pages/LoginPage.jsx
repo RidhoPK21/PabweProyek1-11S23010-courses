@@ -1,4 +1,3 @@
-// src/features/auth/pages/LoginPage.jsx
 import React, { useState } from "react";
 import authApi from "../../../api/authApi";
 
@@ -23,21 +22,16 @@ export default function LoginPage() {
       const loginData = await authApi.postLogin(email, password);
       const token = loginData.token;
 
-      // ✅ PERBAIKAN: Ambil user_id dari respons
+      // Ambil user_id dari respons
       const userId = loginData.user_id || loginData.id;
 
       if (token) {
         // Simpan token
         localStorage.setItem("token", token);
 
-        // ✅ PERBAIKAN PENTING: Menyimpan ID pengguna secara eksplisit
+        // Menyimpan ID pengguna secara eksplisit
         if (userId) {
           localStorage.setItem("user_id", userId);
-        } else {
-          localStorage.removeItem("user_id");
-          console.warn(
-            "API GAGAL MEMBERIKAN user_id. Status keanggotaan mungkin tidak berfungsi."
-          );
         }
 
         setMessage("✅ Login berhasil!");
@@ -50,68 +44,76 @@ export default function LoginPage() {
         throw new Error("Token tidak ditemukan dalam respons login.");
       }
     } catch (err) {
-      // Ini akan menangani error HTTP atau error dari authApi.postLogin
       setMessage("❌ " + err.message);
-      setLoading(false); // Hentikan loading jika terjadi error
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "400px" }}>
-      <h2>Login</h2>
-      {message && (
-        <div
-          className={`alert ${
-            message.startsWith("❌") ? "alert-danger" : "alert-info"
-          }`}
+    <div className="container mt-5" style={{ maxWidth: "450px" }}>
+      {/* 1. Form dibungkus dengan Card untuk tampilan yang lebih baik */}
+      <div className="card p-4 p-md-5">
+        <h2
+          className="text-center fw-bold mb-4"
+          style={{ color: "var(--primary-color)" }}
         >
-          {message}
-        </div>
-      )}
+          Selamat Datang
+        </h2>
 
-      <form onSubmit={handleLogin} className="card p-4">
-        <div className="mb-3">
-          <label className="form-label">Email</label>
-          <input
-            type="email"
-            className="form-control"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="contoh@email.com"
-            required
-          />
-        </div>
+        {message && (
+          <div
+            className={`alert ${
+              message.startsWith("❌") ? "alert-danger" : "alert-success"
+            }`}
+          >
+            {message}
+          </div>
+        )}
 
-        <div className="mb-3">
-          <label className="form-label">Password</label>
-          <input
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="******"
-            required
-          />
-        </div>
+        <form onSubmit={handleLogin}>
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              className="form-control"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="contoh@email.com"
+              required
+            />
+          </div>
 
-        <div className="text-end">
-          {/* Tampilan tombol kondisional */}
-          {loading ? (
-            <button className="btn btn-primary" type="button" disabled>
-              <span
-                className="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              ></span>
-              &nbsp;Memuat...
-            </button>
-          ) : (
-            <button type="submit" className="btn btn-primary">
-              Masuk
-            </button>
-          )}
-        </div>
-      </form>
+          <div className="mb-3">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              className="form-control"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="******"
+              required
+            />
+          </div>
+
+          {/* 2. Tombol dibuat full-width untuk tampilan mobile yang lebih baik */}
+          <div className="d-grid mt-4">
+            {loading ? (
+              <button className="btn btn-primary" type="button" disabled>
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                &nbsp;Memuat...
+              </button>
+            ) : (
+              <button type="submit" className="btn btn-primary">
+                Masuk
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

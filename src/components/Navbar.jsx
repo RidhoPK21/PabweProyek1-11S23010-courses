@@ -1,14 +1,24 @@
-// src/components/Navbar.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 export default function Navbar() {
   const token = localStorage.getItem("token");
 
+  const navLinkStyles = ({ isActive }) => {
+    return {
+      fontWeight: isActive ? "bold" : "normal",
+      color: isActive ? "#4f46e5" : "", // Warna primer kita
+    };
+  };
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
       <div className="container">
-        <Link to="/" className="navbar-brand">
+        <Link
+          to="/"
+          className="navbar-brand fw-bold"
+          style={{ color: "#4f46e5" }}
+        >
           CoursesApp
         </Link>
         <div className="collapse navbar-collapse">
@@ -16,14 +26,27 @@ export default function Navbar() {
             {token && (
               <>
                 <li className="nav-item">
-                  <Link to="/" className="nav-link">
+                  <NavLink to="/" className="nav-link" style={navLinkStyles}>
                     Home
-                  </Link>
+                  </NavLink>
                 </li>
                 <li className="nav-item">
-                  <Link to="/add-course" className="nav-link">
+                  <NavLink
+                    to="/add-course"
+                    className="nav-link"
+                    style={navLinkStyles}
+                  >
                     Tambah Course
-                  </Link>
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    to="/users"
+                    className="nav-link"
+                    style={navLinkStyles}
+                  >
+                    Daftar Pengguna
+                  </NavLink>
                 </li>
               </>
             )}
@@ -31,15 +54,14 @@ export default function Navbar() {
           <div>
             {token ? (
               <>
-                {/* ✅ TOMBOL BARU: Profile */}
-                <Link to="/profile" className="btn btn-outline-info me-2">
+                <Link to="/profile" className="btn btn-outline-secondary me-2">
                   Profile
                 </Link>
                 <button
-                  className="btn btn-outline-light"
+                  className="btn btn-danger"
                   onClick={() => {
                     localStorage.removeItem("token");
-                    localStorage.removeItem("user_id"); // Hapus user_id untuk keamanan
+                    localStorage.removeItem("user_id");
                     window.location.href = "/login";
                   }}
                 >
@@ -48,10 +70,10 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link to="/login" className="btn btn-outline-light me-2">
+                <Link to="/login" className="btn btn-outline-primary me-2">
                   Login
                 </Link>
-                <Link to="/register" className="btn btn-warning">
+                <Link to="/register" className="btn btn-primary">
                   Register
                 </Link>
               </>

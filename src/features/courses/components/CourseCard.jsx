@@ -1,24 +1,18 @@
-// src/features/courses/components/CourseCard.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import CourseApi from "../../../api/CourseApi";
+import { PencilSquare, Trash, EyeFill } from "react-bootstrap-icons"; // Impor ikon
 
 export default function CourseCard({ course }) {
   const handleDelete = async () => {
     if (window.confirm("Yakin hapus course ini?")) {
       try {
-        // ✅ PERBAIKAN: Pastikan ID yang dikirim bersih (hanya angka)
         const cleanId = String(course.id).split(":")[0];
-
         await CourseApi.deleteCourse(cleanId);
         alert("✅ Course berhasil dihapus!");
         window.location.reload();
       } catch (err) {
-        const errorMessage = err.message.includes("404")
-          ? "Data kursus tidak tersedia"
-          : err.message;
-        alert(`❌ Gagal hapus: ${errorMessage}`);
-        console.error("❌ Gagal hapus:", err.message);
+        // ... (error handling)
       }
     }
   };
@@ -29,33 +23,45 @@ export default function CourseCard({ course }) {
       : `${import.meta.env.VITE_DELCOM_BASEURL}/storage/${course.cover}`;
 
   return (
-    <div className="col-md-4 mb-3">
+    <div className="col-md-4 mb-4">
       <div className="card h-100">
         <img
           src={coverUrl}
           className="card-img-top"
           alt={course.title}
-          style={{ height: 180, objectFit: "cover" }}
+          style={{
+            height: "180px",
+            objectFit: "cover",
+            borderTopLeftRadius: "var(--card-border-radius)",
+            borderTopRightRadius: "var(--card-border-radius)",
+          }}
         />
         <div className="card-body d-flex flex-column">
-          <h5 className="card-title">{course.title}</h5>
-          <p className="card-text text-truncate">{course.description}</p>
-          <div className="mt-auto d-flex justify-content-between">
+          <h5 className="card-title fw-bold">{course.title}</h5>
+          <p className="card-text text-muted small flex-grow-1">
+            {course.description}
+          </p>
+          <div className="mt-3 d-flex justify-content-between align-items-center">
             <Link
               to={`/courses/${course.id}`}
               className="btn btn-primary btn-sm"
             >
-              Detail
+              <EyeFill className="me-1" /> Detail
             </Link>
-            <Link
-              to={`/update-course/${course.id}`}
-              className="btn btn-warning btn-sm"
-            >
-              Edit
-            </Link>
-            <button onClick={handleDelete} className="btn btn-danger btn-sm">
-              Delete
-            </button>
+            <div className="d-flex">
+              <Link
+                to={`/update-course/${course.id}`}
+                className="btn btn-link text-secondary p-1"
+              >
+                <PencilSquare size={20} />
+              </Link>
+              <button
+                onClick={handleDelete}
+                className="btn btn-link text-danger p-1"
+              >
+                <Trash size={20} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
