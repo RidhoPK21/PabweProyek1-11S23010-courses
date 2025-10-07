@@ -77,33 +77,32 @@ const CourseApi = (() => {
     return resJson;
   }
 
-async function addStudent(courseId, studentData) {
-  // ✅ PERBAIKAN: Gunakan URLSearchParams untuk format x-www-form-urlencoded
-  const urlEncodedBody = new URLSearchParams(studentData);
 
-  const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: urlEncodedBody,
-  });
-  return res.json();
-}
-
-  async function deleteStudent(courseId, studentId) {
-    const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/students/${studentId}`,
-      { method: "DELETE" }
-    );
+  async function addStudent(courseId) {
+    const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      // Body tidak diperlukan karena API menggunakan token
+    });
     return res.json();
   }
 
-  async function changeStudentRating(courseId, studentId, ratingData) {
+  async function leaveCourse(courseId) {
+    const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
+      method: "DELETE",
+    });
+    return res.json();
+  }
+
+  // ✅ PERBAIKAN: Fungsi ini untuk mengubah rating PENGGUNA SAAT INI
+  async function changeMyRating(courseId, ratingData) {
+    const urlEncodedBody = new URLSearchParams(ratingData);
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/students/${studentId}/rating`,
+      `${BASE_URL}/${courseId}/students/ratings`, // URL sesuai dokumentasi
       {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(ratingData),
+        method: "PUT",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: urlEncodedBody,
       }
     );
     return res.json();
@@ -126,11 +125,14 @@ async function addStudent(courseId, studentData) {
     return resJson;
   }
 
- async function getContentById(courseId, contentId) {
-   // ✅ PERBAIKAN: Gunakan format URL /-/ sesuai dokumentasi
-   const res = await apiHelper.fetchData(`${BASE_URL}/-/contents/${contentId}`);
-   return res.json();
- }
+  async function getContentById(courseId, contentId) {
+    // ✅ PERBAIKAN: Gunakan format URL /-/ sesuai dokumentasi
+    const cleanContentId = String(contentId).split(":")[0];
+    const res = await apiHelper.fetchData(
+      `${BASE_URL}/-/contents/${cleanContentId}`
+    );
+    return res.json();
+  }
 
   async function updateContent(courseId, contentId, contentData) {
     // ✅ PERBAIKAN: Sesuaikan payload dengan dokumentasi (hanya title & youtube)
@@ -202,8 +204,8 @@ async function addStudent(courseId, studentData) {
     changeCover,
     deleteCourse,
     addStudent,
-    deleteStudent,
-    changeStudentRating,
+    leaveCourse,
+    changeMyRating,
     getStudentsByCourseId, // ✅ EXPORT
     addContent,
     getContentById,

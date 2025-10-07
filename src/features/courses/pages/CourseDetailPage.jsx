@@ -95,6 +95,25 @@ export default function CourseDetailPage() {
 
       <ChangeCover courseId={id} onUploadSuccess={loadCourse} />
 
+      <div className="card mb-4">
+        <div className="card-body">
+          <h2 className="card-title">Ulasan Kursus</h2>
+          {course.ratings && course.ratings.length > 0 ? (
+            <ul className="list-group list-group-flush">
+              {course.ratings.map((rating, index) => (
+                <li key={index} className="list-group-item">
+                  <strong>{rating.name}</strong>
+                  <p className="mb-1">Rating: {"⭐".repeat(rating.ratings)}</p>
+                  <p className="mb-0 fst-italic">"{rating.comment}"</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Belum ada ulasan untuk kursus ini.</p>
+          )}
+        </div>
+      </div>
+
       <div className="row">
         <div className="col-md-8">
           <ContentManager
