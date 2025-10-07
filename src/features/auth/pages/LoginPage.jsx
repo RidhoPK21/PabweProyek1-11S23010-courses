@@ -1,77 +1,46 @@
-// src/features/auth/pages/LoginPage.jsx
+// src/features/auth/pages/RegisterPage.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import authApi from "../../../api/authApi";
 
-export default function LoginPage() {
-  // State untuk input form
+
+export default function RegisterPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // State untuk menampilkan pesan error/sukses
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
-  // State untuk mengontrol tombol loading
-  const [loading, setLoading] = useState(false);
-
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage("");
-
     try {
-      // Panggil API
-      const loginData = await authApi.postLogin(email, password);
-      const token = loginData.token;
+      const msg = await authApi.postRegister(name, email, password);
+      setMessage("✅ " + msg + " Silakan login.");
 
-      // Ambil ID pengguna: Gunakan user_id atau id sebagai fallback
-      const userId = loginData.user_id || loginData.id;
-
-      // ✅ PERBAIKAN KRITIS: Hanya periksa keberadaan token untuk sukses login
-      if (token) {
-        // Simpan token (masih diperlukan untuk otentikasi header API)
-        localStorage.setItem("token", token);
-
-        // Simpan ID pengguna: Simpan hanya jika ID ditemukan
-        if (userId) {
-          localStorage.setItem("user_id", userId);
-        } else {
-          // Jika tidak ada ID, hapus user_id lama dan tampilkan peringatan di console
-          localStorage.removeItem("user_id");
-          console.warn(
-            "API GAGAL MEMBERIKAN user_id. Status keanggotaan mungkin tidak berfungsi."
-          );
-        }
-
-        setMessage("✅ Login berhasil!");
-
-        // Redirect ke halaman utama
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 1000);
-      } else {
-        throw new Error("Token tidak ditemukan dalam respons login.");
-      }
+      // redirect ke login setelah 2 detik
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      // Ini akan menangani error HTTP atau error dari authApi.postLogin
       setMessage("❌ " + err.message);
-      setLoading(false); // 3. Hentikan loading jika terjadi error
     }
   };
 
   return (
     <div className="container mt-5" style={{ maxWidth: "400px" }}>
-      <h2>Login</h2>
-      {message && (
-        <div
-          className={`alert ${
-            message.startsWith("❌") ? "alert-danger" : "alert-info"
-          }`}
-        >
-          {message}
-        </div>
-      )}
+      <h2>Register</h2>
+      {message && <div className="alert alert-info">{message}</div>}
 
-      <form onSubmit={handleLogin} className="card p-4">
+      <form onSubmit={handleRegister}>
+        <div className="mb-3">
+          <label className="form-label">Nama</label>
+          <input
+            type="text"
+            className="form-control"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+
         <div className="mb-3">
           <label className="form-label">Email</label>
           <input
@@ -79,7 +48,6 @@ export default function LoginPage() {
             className="form-control"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="contoh@email.com"
             required
           />
         </div>
@@ -91,28 +59,13 @@ export default function LoginPage() {
             className="form-control"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="******"
             required
           />
         </div>
 
-        <div className="text-end">
-          {/* Tampilan tombol kondisional */}
-          {loading ? (
-            <button className="btn btn-primary" type="button" disabled>
-              <span
-                className="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              ></span>
-              &nbsp;Memuat...
-            </button>
-          ) : (
-            <button type="submit" className="btn btn-primary">
-              Masuk
-            </button>
-          )}
-        </div>
+        <button type="submit" className="btn btn-success w-100">
+          Register
+        </button>
       </form>
     </div>
   );
