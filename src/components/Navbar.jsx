@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -29,15 +30,22 @@ export default function Navbar() {
           </ul>
           <div>
             {token ? (
-              <button
-                className="btn btn-outline-light"
-                onClick={() => {
-                  localStorage.removeItem("token");
-                  window.location.href = "/login";
-                }}
-              >
-                Logout
-              </button>
+              <>
+                {/* ✅ TOMBOL BARU: Profile */}
+                <Link to="/profile" className="btn btn-outline-info me-2">
+                  Profile
+                </Link>
+                <button
+                  className="btn btn-outline-light"
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user_id"); // Hapus user_id untuk keamanan
+                    window.location.href = "/login";
+                  }}
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <>
                 <Link to="/login" className="btn btn-outline-light me-2">

@@ -10,6 +10,8 @@ import CourseDetailPage from "./features/courses/pages/CourseDetailPage";
 import AddCoursePage from "./features/courses/pages/AddCoursePage";
 import UpdateCoursePage from "./features/courses/pages/UpdateCoursePage";
 import ContentDetailPage from "./features/courses/pages/ContentDetailPage";
+import ProfilePage from "./features/auth/pages/ProfilePage"; 
+
 
 function App() {
   return (
@@ -19,6 +21,15 @@ function App() {
         {/* Rute Publik */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <ProfilePage />
+            </PrivateRoute>
+          }
+        />
 
         {/* Rute yang Dilindungi */}
         <Route
