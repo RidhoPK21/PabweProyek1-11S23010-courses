@@ -3,9 +3,11 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import CourseApi from "../../../api/CourseApi";
 import ContentManager from "../components/ContentManager";
-import StudentManager from "../components/StudentManager";
+// ✅ PERBAIKAN 1: Hapus impor ganda dan 'StudentManager' yang tidak lagi digunakan
+import CourseActions from "../components/CourseActions";
 import ChangeCover from "../components/ChangeCover";
 
+// ✅ PERBAIKAN 2: Gunakan 'export default' langsung pada deklarasi fungsi
 export default function CourseDetailPage() {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
@@ -24,26 +26,21 @@ export default function CourseDetailPage() {
       if (res.success) {
         const actualCourseData = res.data.course || res.data;
 
-        // ✅ PERBAIKAN: Mengubah ID numerik menjadi objek { id, name }
+        // Mengubah ID numerik siswa menjadi objek { id, name }
         const students = (actualCourseData.students || [])
-          // Filter untuk memastikan hanya ID numerik yang diproses
           .filter((item) => typeof item === "number" || (item && item.id))
           .map((item) => {
             const studentId = typeof item === "number" ? item : item.id;
-
-            // ✅ Menggunakan ID Siswa sebagai Nama Tampilan
-            // Jika Anda tahu nama siswa ini, Anda bisa membuatnya permanen di sini
-            // Namun, cara paling aman adalah menggunakan User ID sebagai nama sementara.
             return {
               id: studentId,
-              name: `Siswa ID: ${studentId}` // Tampilkan ID sebagai nama
+              name: `Siswa ID: ${studentId}`,
             };
           });
 
         const courseData = {
           ...actualCourseData,
           contents: actualCourseData.contents || [],
-          students: students, // Gunakan array objek yang sudah diperbaiki
+          students: students,
         };
         setCourse(courseData);
       } else {
@@ -82,7 +79,6 @@ export default function CourseDetailPage() {
       </Link>
 
       <div className="card mb-4">
-        {/* ... sisa JSX ... */}
         <img
           src={coverUrl}
           className="card-img-top"
@@ -108,13 +104,11 @@ export default function CourseDetailPage() {
           />
         </div>
         <div className="col-md-4">
-          <StudentManager
-            students={course.students || []}
-            courseId={id}
-            onDataChange={loadCourse}
-          />
+          {/* ✅ PERBAIKAN 3: Kirim seluruh objek 'course' sebagai satu prop */}
+          <CourseActions course={course} onDataChange={loadCourse} />
         </div>
       </div>
     </div>
   );
 }
+// Baris 'export default' di bawah tidak diperlukan lagi karena sudah di atas

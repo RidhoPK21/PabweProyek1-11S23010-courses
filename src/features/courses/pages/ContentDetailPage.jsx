@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import CourseApi from "../../../api/CourseApi";
 
+// Helper function to extract YouTube video ID from URL
 const getYouTubeId = (url) => {
   if (!url) return null;
   const regExp =
@@ -20,6 +21,7 @@ function ContentDetailPage() {
   useEffect(() => {
     const loadContent = async () => {
       setLoading(true);
+      setError("");
       try {
         const res = await CourseApi.getContentById(courseId, contentId);
         if (res.success && res.data.course_content) {
@@ -77,4 +79,5 @@ function ContentDetailPage() {
   );
 }
 
+// ✅ PASTIKAN BARIS INI ADA DI AKHIR FILE
 export default ContentDetailPage;

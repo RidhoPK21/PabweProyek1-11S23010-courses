@@ -9,8 +9,7 @@ import CourseListPage from "./features/courses/pages/CourseListPage";
 import CourseDetailPage from "./features/courses/pages/CourseDetailPage";
 import AddCoursePage from "./features/courses/pages/AddCoursePage";
 import UpdateCoursePage from "./features/courses/pages/UpdateCoursePage";
-// ✅ LANGKAH 1: Impor komponen halaman detail yang baru
-// import ContentDetailPage from "./features/courses/pages/ContentDetailPage";
+import ContentDetailPage from "./features/courses/pages/ContentDetailPage"; 
 
 function App() {
   return (
@@ -31,6 +30,15 @@ function App() {
           }
         />
         <Route
+          path="/courses/:courseId/contents/:contentId"
+          element={
+            <PrivateRoute>
+              <ContentDetailPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
           path="/courses/:id"
           element={
             <PrivateRoute>
@@ -38,16 +46,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
-        {/* ✅ LANGKAH 2: Tambahkan rute baru untuk detail konten di sini
-        <Route
-          path="/courses/:courseId/contents/:contentId"
-          element={
-            <PrivateRoute>
-              <ContentDetailPage />
-            </PrivateRoute>
-          }
-        /> */}
 
         <Route
           path="/add-course"
