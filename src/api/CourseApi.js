@@ -64,14 +64,30 @@ const CourseApi = (() => {
   }
 
   // --- Student Management ---
-  async function addStudent(courseId, studentData) {
-    const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(studentData),
-    });
-    return res.json();
+  async function getStudentsByCourseId(courseId) {
+    // ✅ FUNGSI PENGAMBIL DAFTAR SISWA
+    const response = await apiHelper.fetchData(
+      `${BASE_URL}/${courseId}/students`,
+      { method: "GET" }
+    );
+    const resJson = await response.json();
+    if (!resJson.success) {
+      throw new Error(resJson.message);
+    }
+    return resJson;
   }
+
+async function addStudent(courseId, studentData) {
+  // ✅ PERBAIKAN: Gunakan URLSearchParams untuk format x-www-form-urlencoded
+  const urlEncodedBody = new URLSearchParams(studentData);
+
+  const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: urlEncodedBody,
+  });
+  return res.json();
+}
 
   async function deleteStudent(courseId, studentId) {
     const res = await apiHelper.fetchData(
@@ -96,7 +112,7 @@ const CourseApi = (() => {
   // --- Content Management ---
   async function addContent(courseId, contentData) {
     const response = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents`, // ✅ FIX: Endpoint harus plural
+      `${BASE_URL}/${courseId}/contents`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -110,36 +126,52 @@ const CourseApi = (() => {
     return resJson;
   }
 
-  async function getContentById(courseId, contentId) {
-    const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents/${contentId}` // ✅ FIX: Endpoint harus plural
-    );
-    return res.json();
-  }
+ async function getContentById(courseId, contentId) {
+   // ✅ PERBAIKAN: Gunakan format URL /-/ sesuai dokumentasi
+   const res = await apiHelper.fetchData(`${BASE_URL}/-/contents/${contentId}`);
+   return res.json();
+ }
 
   async function updateContent(courseId, contentId, contentData) {
+    // ✅ PERBAIKAN: Sesuaikan payload dengan dokumentasi (hanya title & youtube)
+    const payload = {
+      title: contentData.title,
+      youtube: contentData.video, // Asumsikan contentData.video berisi URL youtube
+    };
+    const urlEncodedBody = new URLSearchParams(payload);
+
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents/${contentId}`, // ✅ FIX: Endpoint harus plural
+      // ✅ PERBAIKAN: Gunakan format URL yang benar
+      `${BASE_URL}/-/contents/${contentId}`,
       {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(contentData),
+        // ✅ PERBAIKAN: Gunakan header yang benar
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: urlEncodedBody,
       }
     );
     return res.json();
   }
 
   async function deleteContent(courseId, contentId) {
+    const cleanContentId = String(contentId).split(":")[0];
+
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents/${contentId}`, // ✅ FIX: Endpoint harus plural
-      { method: "DELETE" }
+      // ✅ PERBAIKAN URL
+      `${BASE_URL}/-/contents/${cleanContentId}`,
+      {
+        method: "DELETE",
+        // ✅ PERBAIKAN HEADER (meskipun tidak logis, kita ikuti dokumentasi)
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
     );
     return res.json();
   }
 
+
   async function changeContentStatus(courseId, contentId, statusData) {
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents/${contentId}/status`, // ✅ FIX: Endpoint harus plural
+      `${BASE_URL}/${courseId}/contents/${contentId}/status`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -150,9 +182,10 @@ const CourseApi = (() => {
   }
 
   async function getContentsByCourseId(courseId) {
+    // ✅ FUNGSI PENGAMBIL DAFTAR MATERI
     const response = await apiHelper.fetchData(
       `${BASE_URL}/${courseId}/contents`,
-      { method: "GET" } // ✅ Tambahkan metode GET secara eksplisit
+      { method: "GET" }
     );
     const resJson = await response.json();
     if (!resJson.success) {
@@ -171,12 +204,13 @@ const CourseApi = (() => {
     addStudent,
     deleteStudent,
     changeStudentRating,
+    getStudentsByCourseId, // ✅ EXPORT
     addContent,
     getContentById,
     updateContent,
     deleteContent,
     changeContentStatus,
-    getContentsByCourseId,
+    getContentsByCourseId, // ✅ EXPORT
   };
 })();
 

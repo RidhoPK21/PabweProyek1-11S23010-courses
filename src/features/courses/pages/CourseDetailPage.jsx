@@ -12,37 +12,53 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-    const loadCourse = async () => {
-      // --- Langkah ini TIDAK menghasilkan 405 ---
-      console.log("✅ FUNGSI loadCourse DI CourseDetailPage TERPANGGIL!");
-      // ------------------------------------------
+  const loadCourse = async () => {
+    console.log("✅ FUNGSI loadCourse DI CourseDetailPage TERPANGGIL!");
 
-      setLoading(true);
-      setError("");
-      try {
-        // Hanya panggil API utama detail course
-        const res = await CourseApi.getCourseById(id);
-        console.log("📦 DATA MENTAH DARI API:", res);
+    setLoading(true);
+    setError("");
+    try {
+      const res = await CourseApi.getCourseById(id);
+      console.log("📦 DATA MENTAH DARI API:", res);
 
-        if (res.success) {
-          const courseData = {
-            ...res.data,
-            contents: res.data.contents || [], // Jika API tidak mengembalikannya, inisialisasi sebagai array kosong
-          };
-          setCourse(courseData);
-        } else {
-          throw new Error(res.message || "Gagal memuat data kursus.");
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (res.success) {
+        const actualCourseData = res.data.course || res.data;
+
+        // ✅ PERBAIKAN: Mengubah ID numerik menjadi objek { id, name }
+        const students = (actualCourseData.students || [])
+          // Filter untuk memastikan hanya ID numerik yang diproses
+          .filter((item) => typeof item === "number" || (item && item.id))
+          .map((item) => {
+            const studentId = typeof item === "number" ? item : item.id;
+
+            // ✅ Menggunakan ID Siswa sebagai Nama Tampilan
+            // Jika Anda tahu nama siswa ini, Anda bisa membuatnya permanen di sini
+            // Namun, cara paling aman adalah menggunakan User ID sebagai nama sementara.
+            return {
+              id: studentId,
+              name: `Siswa ID: ${studentId}` // Tampilkan ID sebagai nama
+            };
+          });
+
+        const courseData = {
+          ...actualCourseData,
+          contents: actualCourseData.contents || [],
+          students: students, // Gunakan array objek yang sudah diperbaiki
+        };
+        setCourse(courseData);
+      } else {
+        throw new Error(res.message || "Gagal memuat data kursus.");
       }
-    };
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-      loadCourse();
-    }, [id]);
+  useEffect(() => {
+    loadCourse();
+  }, [id]);
 
   if (loading) return <div className="container mt-5">Loading...</div>;
   if (error)

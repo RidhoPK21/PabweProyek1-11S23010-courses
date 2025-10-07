@@ -23,6 +23,7 @@ export default function StudentManager({ students, courseId, onDataChange }) {
   const handleDeleteStudent = async (studentUserId) => {
     if (window.confirm("Yakin ingin mengeluarkan siswa ini?")) {
       try {
+        // studentUserId di sini adalah ID siswa yang diterima dari onClick
         await CourseApi.deleteStudent(courseId, studentUserId);
         alert("Siswa berhasil dikeluarkan.");
         onDataChange(); // Refresh data
@@ -58,20 +59,24 @@ export default function StudentManager({ students, courseId, onDataChange }) {
 
       {students.length > 0 ? (
         <ul className="list-group">
-          {students.map((student) => (
-            <li
-              key={student.id}
-              className="list-group-item d-flex justify-content-between align-items-center"
-            >
-              {student.name} (ID: {student.id})
-              <button
-                className="btn btn-outline-danger btn-sm"
-                onClick={() => handleDeleteStudent(student.id)}
+          {students
+            // ✅ PERBAIKAN: Filter untuk menghapus objek siswa yang tidak memiliki ID
+            .filter((student) => student && student.id)
+            .map((student) => (
+              <li
+                key={student.id} // ✅ key prop yang unik
+                className="list-group-item d-flex justify-content-between align-items-center"
               >
-                Keluarkan
-              </button>
-            </li>
-          ))}
+                {student.name} (ID: {student.id})
+                <button
+                  className="btn btn-outline-danger btn-sm"
+                  // student.id dipastikan ada karena sudah difilter
+                  onClick={() => handleDeleteStudent(student.id)}
+                >
+                  Keluarkan
+                </button>
+              </li>
+            ))}
         </ul>
       ) : (
         <p>Belum ada siswa yang terdaftar.</p>

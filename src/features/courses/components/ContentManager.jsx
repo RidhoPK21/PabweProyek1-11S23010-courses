@@ -2,11 +2,21 @@
 import React, { useState } from "react";
 import CourseApi from "../../../api/CourseApi";
 import { Modal, Button, Form } from "react-bootstrap";
+import { Link } from "react-router-dom"; 
+
+
+const getYouTubeId = (url) => {
+  if (!url) return null;
+  const regExp =
+    /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+};
 
 export default function ContentManager({ contents, courseId, onDataChange }) {
   // State untuk form tambah materi baru
   const [newTitle, setNewTitle] = useState("");
-  const [newDescription, setNewDescription] = useState(""); // Tetap ada untuk form, meski tidak dikirim ke 'add' API
+  const [newDescription, setNewDescription] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
 
   // State untuk modal edit
@@ -18,10 +28,10 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
 
   // --- FUNGSI UNTUK MODAL EDIT ---
   const handleShowEditModal = (content) => {
-    setEditingContent(content);
+    setEditingContent(content); // Menyimpan seluruh objek content
     setEditTitle(content.title);
     setEditDescription(content.description);
-    setEditVideoUrl(content.video || ""); // Sesuaikan dengan field dari API get course
+    setEditVideoUrl(content.video || "");
     setShowEditModal(true);
   };
 
@@ -30,35 +40,39 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
     setEditingContent(null);
   };
 
+  // ✅ --- State baru untuk modal DETAIL ---
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedContent, setSelectedContent] = useState(null);
+
+  // --- FUNGSI UNTUK MODAL DETAIL ---
+  const handleShowDetailModal = (content) => {
+    setSelectedContent(content);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedContent(null);
+  };
+
   // --- FUNGSI CRUD (Create, Read, Update, Delete) ---
 
   const handleAddContent = async (e) => {
     e.preventDefault();
     try {
-      // PERBAIKAN: Payload disesuaikan dengan dokumentasi API Anda
-      // Body hanya membutuhkan 'title' dan 'youtube'
       const payload = {
         title: newTitle,
         youtube: newVideoUrl,
       };
-
       const res = await CourseApi.addContent(courseId, payload);
-
       if (res.success) {
         alert("Materi berhasil ditambahkan!");
-        // Bersihkan form
         setNewTitle("");
         setNewDescription("");
         setNewVideoUrl("");
-        onDataChange(); // Panggil fungsi refresh dari parent untuk memuat ulang data
+        onDataChange();
       } else {
-        // Menampilkan pesan error dari API jika ada
-        const errorMessages = Object.values(res.data || {})
-          .flat()
-          .join("\n");
-        throw new Error(
-          res.message + (errorMessages ? `\n- ${errorMessages}` : "")
-        );
+        throw new Error(res.message || "Gagal menambahkan materi.");
       }
     } catch (error) {
       alert("Gagal menambahkan materi:\n" + error.message);
@@ -70,23 +84,22 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
     if (!editingContent) return;
 
     try {
-      // Payload untuk update, sesuaikan field jika berbeda
       const payload = {
         title: editTitle,
         description: editDescription,
         video: editVideoUrl,
       };
-
+      // ✅ PASTIKAN MENGGUNAKAN ID DARI editingContent
       const res = await CourseApi.updateContent(
         courseId,
-        editingContent.id,
+        editingContent.id, // Menggunakan ID dari state
         payload
       );
 
       if (res.success) {
         alert("Materi berhasil diperbarui!");
         handleCloseEditModal();
-        onDataChange(); // Refresh data
+        onDataChange();
       } else {
         throw new Error(res.message || "Gagal memperbarui materi.");
       }
@@ -98,10 +111,13 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
   const handleDeleteContent = async (contentId) => {
     if (window.confirm("Apakah Anda yakin ingin menghapus materi ini?")) {
       try {
-        const res = await CourseApi.deleteContent(courseId, contentId);
+        // ✅ PERBAIKAN: Bersihkan ID materi sebelum dikirim ke API
+        const cleanContentId = String(contentId).split(":")[0];
+
+        const res = await CourseApi.deleteContent(courseId, cleanContentId);
         if (res.success) {
           alert("Materi berhasil dihapus!");
-          onDataChange(); // Refresh data
+          onDataChange();
         } else {
           throw new Error(res.message || "Gagal menghapus materi.");
         }
@@ -113,8 +129,7 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
 
   return (
     <div>
-      <h3>Materi Pembelajaran</h3>
-      {/* FORM TAMBAH MATERI BARU */}
+      {/* ... (bagian form tambah materi) ... */}
       <div className="card mb-3">
         <div className="card-body">
           <h5 className="card-title">Tambah Materi Baru</h5>
@@ -129,7 +144,6 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
                 required
               />
             </div>
-            {/* Deskripsi tetap di form untuk UX, tapi tidak dikirim */}
             <div className="mb-2">
               <textarea
                 className="form-control"
@@ -168,6 +182,15 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
                 <p className="mb-0 text-muted">{content.description}</p>
               </div>
               <div>
+                {/* ✅ Tombol "Detail" menggunakan Link untuk navigasi */}
+                <Link
+                  to={`/courses/${courseId}/contents/${content.id}`}
+                  className="btn btn-info btn-sm me-2"
+                >
+                  Detail
+                </Link>
+
+                {/* ✅ Tombol "Edit" menggunakan button untuk membuka modal */}
                 <button
                   className="btn btn-warning btn-sm me-2"
                   onClick={() => handleShowEditModal(content)}
@@ -188,7 +211,7 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
         <p>Belum ada materi untuk kursus ini.</p>
       )}
 
-      {/* MODAL UNTUK EDIT MATERI */}
+      {/* ... (modal edit) ... */}
       <Modal show={showEditModal} onHide={handleCloseEditModal}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Materi</Modal.Title>

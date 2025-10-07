@@ -7,11 +7,17 @@ export default function CourseCard({ course }) {
   const handleDelete = async () => {
     if (window.confirm("Yakin hapus course ini?")) {
       try {
-        await CourseApi.deleteCourse(course.id);
+        // ✅ PERBAIKAN: Pastikan ID yang dikirim bersih (hanya angka)
+        const cleanId = String(course.id).split(":")[0];
+
+        await CourseApi.deleteCourse(cleanId);
         alert("✅ Course berhasil dihapus!");
-        window.location.reload(); // Refresh halaman untuk melihat perubahan
+        window.location.reload();
       } catch (err) {
-        alert("❌ Gagal menghapus course.");
+        const errorMessage = err.message.includes("404")
+          ? "Data kursus tidak tersedia"
+          : err.message;
+        alert(`❌ Gagal hapus: ${errorMessage}`);
         console.error("❌ Gagal hapus:", err.message);
       }
     }
