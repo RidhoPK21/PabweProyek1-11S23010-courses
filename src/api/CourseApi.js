@@ -15,7 +15,9 @@ const CourseApi = (() => {
   }
 
   async function getCourseById(id) {
-    const response = await apiHelper.fetchData(`${BASE_URL}/${id}`);
+    const url = `${BASE_URL}/${id}`;
+
+    const response = await apiHelper.fetchData(url);
     const resJson = await response.json();
     if (!resJson.success) {
       throw new Error(resJson.message);
@@ -63,9 +65,24 @@ const CourseApi = (() => {
     return res.json();
   }
 
+
+  async function changeContentStatus(contentId, statusData) {
+    const cleanContentId = String(contentId).split(":")[0];
+    const urlEncodedBody = new URLSearchParams(statusData); // statusData akan menjadi { status: 1 } atau { status: 0 }
+
+    const res = await apiHelper.fetchData(
+      `${BASE_URL}/-/contents/${cleanContentId}/learns`, // URL Sesuai dokumentasi
+      {
+        method: "POST", // Method POST
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }, // Header Sesuai dokumentasi
+        body: urlEncodedBody,
+      }
+    );
+    return res.json();
+  }
+
   // --- Student Management ---
   async function getStudentsByCourseId(courseId) {
-    // ✅ FUNGSI PENGAMBIL DAFTAR SISWA
     const response = await apiHelper.fetchData(
       `${BASE_URL}/${courseId}/students`,
       { method: "GET" }
@@ -77,19 +94,16 @@ const CourseApi = (() => {
     return resJson;
   }
 
-  // Mengembalikan fungsi ke versi yang lebih sederhana, tidak menerima studentData
-async function addStudent(courseId, studentData) {
-  // Kini menerima studentData
-  const urlEncodedBody = new URLSearchParams(studentData);
-
+  // ✅ REVERTED: Hanya courseId, mengandalkan token di header
+async function addStudent(courseId) {
   const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: urlEncodedBody, // MENGIRIM PAYLOAD user_id
+    // Body tidak diperlukan karena API menggunakan token
   });
   const resJson = await res.json();
   if (!resJson.success) {
-    // Pastikan error ditangkap jika server menolak
+    // KRITIS: Cek sukses dari JSON response
     throw new Error(resJson.message || "Gagal mendaftar ke kursus.");
   }
   return resJson;
@@ -102,11 +116,10 @@ async function addStudent(courseId, studentData) {
     return res.json();
   }
 
-  // Mengembalikan fungsi changeMyRating ke versi sebelum perbaikan URL
   async function changeMyRating(courseId, ratingData) {
     const urlEncodedBody = new URLSearchParams(ratingData);
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/students/ratings`,
+      `${BASE_URL}/${courseId}/students/ratings`, // URL sesuai dokumentasi
       {
         method: "PUT",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -116,7 +129,7 @@ async function addStudent(courseId, studentData) {
     return res.json();
   }
 
-  // --- Content Management ---
+  // --- Content Management (dibiarkan tetap) ---
   async function addContent(courseId, contentData) {
     const response = await apiHelper.fetchData(
       `${BASE_URL}/${courseId}/contents`,
@@ -134,7 +147,6 @@ async function addStudent(courseId, studentData) {
   }
 
   async function getContentById(courseId, contentId) {
-    // ✅ PERBAIKAN: Gunakan format URL /-/ sesuai dokumentasi
     const cleanContentId = String(contentId).split(":")[0];
     const res = await apiHelper.fetchData(
       `${BASE_URL}/-/contents/${cleanContentId}`
@@ -143,19 +155,16 @@ async function addStudent(courseId, studentData) {
   }
 
   async function updateContent(courseId, contentId, contentData) {
-    // ✅ PERBAIKAN: Sesuaikan payload dengan dokumentasi (hanya title & youtube)
     const payload = {
       title: contentData.title,
-      youtube: contentData.video, // Asumsikan contentData.video berisi URL youtube
+      youtube: contentData.video,
     };
     const urlEncodedBody = new URLSearchParams(payload);
 
     const res = await apiHelper.fetchData(
-      // ✅ PERBAIKAN: Gunakan format URL yang benar
       `${BASE_URL}/-/contents/${contentId}`,
       {
         method: "PUT",
-        // ✅ PERBAIKAN: Gunakan header yang benar
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: urlEncodedBody,
       }
@@ -167,31 +176,28 @@ async function addStudent(courseId, studentData) {
     const cleanContentId = String(contentId).split(":")[0];
 
     const res = await apiHelper.fetchData(
-      // ✅ PERBAIKAN URL
       `${BASE_URL}/-/contents/${cleanContentId}`,
       {
         method: "DELETE",
-        // ✅ PERBAIKAN HEADER (meskipun tidak logis, kita ikuti dokumentasi)
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       }
     );
     return res.json();
   }
 
-  async function changeContentStatus(courseId, contentId, statusData) {
-    const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents/${contentId}/status`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(statusData),
-      }
-    );
-    return res.json();
-  }
+  // async function changeContentStatus(courseId, contentId, statusData) {
+  //   const res = await apiHelper.fetchData(
+  //     `${BASE_URL}/${courseId}/contents/${contentId}/status`,
+  //     {
+  //       method: "PATCH",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(statusData),
+  //     }
+  //   );
+  //   return res.json();
+  // }
 
   async function getContentsByCourseId(courseId) {
-    // ✅ FUNGSI PENGAMBIL DAFTAR MATERI
     const response = await apiHelper.fetchData(
       `${BASE_URL}/${courseId}/contents`,
       { method: "GET" }
@@ -213,13 +219,14 @@ async function addStudent(courseId, studentData) {
     addStudent,
     leaveCourse,
     changeMyRating,
-    getStudentsByCourseId, // ✅ EXPORT
+    getStudentsByCourseId,
     addContent,
     getContentById,
     updateContent,
     deleteContent,
     changeContentStatus,
-    getContentsByCourseId, // ✅ EXPORT
+    getContentsByCourseId,
+    changeContentStatus,
   };
 })();
 

@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import CourseApi from "../../../api/CourseApi";
 import { Modal, Button, Form } from "react-bootstrap";
-import { Link } from "react-router-dom"; 
-
+import { Link } from "react-router-dom";
+import { CheckCircleFill, Circle } from "react-bootstrap-icons";
 
 const getYouTubeId = (url) => {
   if (!url) return null;
@@ -13,7 +13,7 @@ const getYouTubeId = (url) => {
   return match && match[2].length === 11 ? match[2] : null;
 };
 
-export default function ContentManager({ contents, courseId, onDataChange }) {
+export default function ContentManager({ contents, courseId, onDataChange, onStatusUpdate }) {
   // State untuk form tambah materi baru
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
@@ -76,6 +76,25 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
       }
     } catch (error) {
       alert("Gagal menambahkan materi:\n" + error.message);
+    }
+  };
+
+  const handleToggleLearnStatus = async (content) => {
+    const newStatus = content.is_learned ? 0 : 1;
+    try {
+      const res = await CourseApi.changeContentStatus(content.id, {
+        status: newStatus,
+      });
+      if (res.success) {
+        // Panggil fungsi onStatusUpdate dari parent dengan ID konten yang diubah
+        onStatusUpdate(content.id);
+        // Hapus alert agar tidak mengganggu
+        // alert("Status materi berhasil diubah!");
+      } else {
+        throw new Error(res.message || "Gagal mengubah status.");
+      }
+    } catch (error) {
+      alert("Gagal mengubah status: " + error.message);
     }
   };
 
@@ -177,20 +196,40 @@ export default function ContentManager({ contents, courseId, onDataChange }) {
               key={content.id}
               className="list-group-item d-flex justify-content-between align-items-center"
             >
-              <div>
-                <strong>{content.title}</strong>
-                <p className="mb-0 text-muted">{content.description}</p>
+              <div className="d-flex align-items-center">
+                {/* Indikator status selesai/belum */}
+                {content.is_learned ? (
+                  <CheckCircleFill color="green" size={20} className="me-3" />
+                ) : (
+                  <Circle size={20} className="me-3 text-muted" />
+                )}
+                <div>
+                  <strong>{content.title}</strong>
+                  <p className="mb-0 text-muted">{content.description}</p>
+                </div>
               </div>
               <div>
-                {/* ✅ Tombol "Detail" menggunakan Link untuk navigasi */}
+                {/* TOMBOL BARU UNTUK STATUS */}
+                <button
+                  className={`btn btn-sm me-2 ${
+                    content.is_learned ? "btn-outline-secondary" : "btn-success"
+                  }`}
+                  onClick={() => handleToggleLearnStatus(content)}
+                  title={
+                    content.is_learned
+                      ? "Tandai Belum Selesai"
+                      : "Tandai Selesai"
+                  }
+                >
+                  {content.is_learned ? "Batal" : "Selesai"}
+                </button>
+
                 <Link
                   to={`/courses/${courseId}/contents/${content.id}`}
                   className="btn btn-info btn-sm me-2"
                 >
                   Detail
                 </Link>
-
-                {/* ✅ Tombol "Edit" menggunakan button untuk membuka modal */}
                 <button
                   className="btn btn-warning btn-sm me-2"
                   onClick={() => handleShowEditModal(content)}

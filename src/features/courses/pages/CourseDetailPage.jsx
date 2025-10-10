@@ -55,6 +55,22 @@ export default function CourseDetailPage() {
     loadCourse();
   }, [id]);
 
+  const handleContentStatusUpdate = (updatedContentId) => {
+    setCourse((currentCourse) => {
+      if (!currentCourse) return null;
+
+      const newContents = currentCourse.contents.map((content) => {
+        if (content.id === updatedContentId) {
+          // Balikkan status 'is_learned' dari content yang sesuai
+          return { ...content, is_learned: !content.is_learned };
+        }
+        return content;
+      });
+
+      return { ...currentCourse, contents: newContents };
+    });
+  };
+
   if (loading) return <div className="container mt-5">Loading...</div>;
   if (error)
     return <div className="container mt-5 alert alert-danger">{error}</div>;
@@ -98,6 +114,7 @@ export default function CourseDetailPage() {
             contents={course.contents || []}
             courseId={id}
             onDataChange={loadCourse}
+            onStatusUpdate={handleContentStatusUpdate} // Prop BARU
           />
 
           <div className="card mt-4">
