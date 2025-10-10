@@ -72,10 +72,10 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
         setNewVideoUrl("");
         onDataChange();
       } else {
-        throw new Error(res.message || "Gagal menambahkan materi.");
+        throw new Error(res.message || "Failed to add content");
       }
     } catch (error) {
-      alert("Gagal menambahkan materi:\n" + error.message);
+      alert("Failed to add content:\n" + error.message);
     }
   };
 
@@ -91,10 +91,10 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
         // Hapus alert agar tidak mengganggu
         // alert("Status materi berhasil diubah!");
       } else {
-        throw new Error(res.message || "Gagal mengubah status.");
+        throw new Error(res.message || "Failed to change status.");
       }
     } catch (error) {
-      alert("Gagal mengubah status: " + error.message);
+      alert("Failed to change status: " + error.message);
     }
   };
 
@@ -116,19 +116,19 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
       );
 
       if (res.success) {
-        alert("Materi berhasil diperbarui!");
+        alert("Content successfully updated!");
         handleCloseEditModal();
         onDataChange();
       } else {
-        throw new Error(res.message || "Gagal memperbarui materi.");
+        throw new Error(res.message || "Failed to update content.");
       }
     } catch (error) {
-      alert("Gagal memperbarui materi:\n" + error.message);
+      alert("Failed to update content:\n" + error.message);
     }
   };
 
   const handleDeleteContent = async (contentId) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus materi ini?")) {
+    if (window.confirm("Are you sure you want to delete this material?")) {
       try {
         // ✅ PERBAIKAN: Bersihkan ID materi sebelum dikirim ke API
         const cleanContentId = String(contentId).split(":")[0];
@@ -138,10 +138,10 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
           alert("Materi berhasil dihapus!");
           onDataChange();
         } else {
-          throw new Error(res.message || "Gagal menghapus materi.");
+          throw new Error(res.message || "Failed to delete content.");
         }
       } catch (error) {
-        alert("Gagal menghapus materi: " + error.message);
+        alert("Failed to delete content: " + error.message);
       }
     }
   };
@@ -151,13 +151,13 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
       {/* ... (bagian form tambah materi) ... */}
       <div className="card mb-3">
         <div className="card-body">
-          <h5 className="card-title">Tambah Materi Baru</h5>
+          <h5 className="card-title">Add New Content</h5>
           <form onSubmit={handleAddContent}>
             <div className="mb-2">
               <input
                 type="text"
                 className="form-control"
-                placeholder="Judul Materi"
+                placeholder="Content Title"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 required
@@ -166,7 +166,7 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
             <div className="mb-2">
               <textarea
                 className="form-control"
-                placeholder="Deskripsi (Opsional)"
+                placeholder="Description (Optional)"
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
               ></textarea>
@@ -175,14 +175,14 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
               <input
                 type="url"
                 className="form-control"
-                placeholder="URL Youtube"
+                placeholder="YouTube URL"
                 value={newVideoUrl}
                 onChange={(e) => setNewVideoUrl(e.target.value)}
                 required
               />
             </div>
             <button type="submit" className="btn btn-primary btn-sm">
-              Tambah
+              Add
             </button>
           </form>
         </div>
@@ -221,7 +221,7 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
                       : "Tandai Selesai"
                   }
                 >
-                  {content.is_learned ? "Batal" : "Selesai"}
+                  {content.is_learned ? "Cancel" : "Finished"}
                 </button>
 
                 <Link
@@ -240,25 +240,25 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
                   className="btn btn-danger btn-sm"
                   onClick={() => handleDeleteContent(content.id)}
                 >
-                  Hapus
+                  Delete
                 </button>
               </div>
             </li>
           ))}
         </ul>
       ) : (
-        <p>Belum ada materi untuk kursus ini.</p>
+        <p>There is no content for this course yet.</p>
       )}
 
       {/* ... (modal edit) ... */}
       <Modal show={showEditModal} onHide={handleCloseEditModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Edit Materi</Modal.Title>
+          <Modal.Title>Edit Content</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleUpdateContent}>
           <Modal.Body>
             <Form.Group className="mb-3">
-              <Form.Label>Judul</Form.Label>
+              <Form.Label>Title</Form.Label>
               <Form.Control
                 type="text"
                 value={editTitle}
@@ -267,7 +267,7 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Deskripsi</Form.Label>
+              <Form.Label>Description</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
@@ -277,7 +277,7 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>URL Youtube</Form.Label>
+              <Form.Label>Youtube URL</Form.Label>
               <Form.Control
                 type="url"
                 value={editVideoUrl}
@@ -288,10 +288,10 @@ export default function ContentManager({ contents, courseId, onDataChange, onSta
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseEditModal}>
-              Batal
+              Cancel
             </Button>
             <Button variant="primary" type="submit">
-              Simpan Perubahan
+              Save Changes
             </Button>
           </Modal.Footer>
         </Form>

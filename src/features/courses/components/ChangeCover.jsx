@@ -13,26 +13,26 @@ export default function ChangeCover({ courseId, onUploadSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!cover) {
-      setMessage("Silakan pilih file gambar terlebih dahulu.");
+      setMessage("Please select the image file first.");
       return;
     }
 
     try {
       await CourseApi.changeCover(courseId, cover);
-      setMessage("Cover berhasil diubah!");
+      setMessage("Cover changed successfully!");
       // Reset state dan refresh data di halaman detail
       setCover(null);
       e.target.reset(); // Reset form input file
       onUploadSuccess();
     } catch (error) {
-      setMessage("Gagal mengubah cover: " + error.message);
+      setMessage("Failed to change cover: " + error.message);
     }
   };
 
   return (
     <div className="card mb-4">
       <div className="card-body">
-        <h5 className="card-title">Ganti Cover Course</h5>
+        <h5 className="card-title">Change Course Cover</h5>
         {message && <div className="alert alert-info">{message}</div>}
         <form onSubmit={handleSubmit}>
           <div className="input-group">

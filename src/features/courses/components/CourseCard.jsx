@@ -5,7 +5,7 @@ import { PencilSquare, Trash, EyeFill } from "react-bootstrap-icons"; // Impor i
 
 export default function CourseCard({ course }) {
   const handleDelete = async () => {
-    if (window.confirm("Yakin hapus course ini?")) {
+    if (window.confirm("Are you sure you want to delete this course??")) {
       try {
         const cleanId = String(course.id).split(":")[0];
         await CourseApi.deleteCourse(cleanId);
@@ -23,7 +23,7 @@ export default function CourseCard({ course }) {
       : `${import.meta.env.VITE_DELCOM_BASEURL}/storage/${course.cover}`;
 
   return (
-    <div className="col-md-4 mb-4">
+    <div className="col-lg-3 col-md-4 mb-4">
       <div className="card h-100">
         <img
           src={coverUrl}

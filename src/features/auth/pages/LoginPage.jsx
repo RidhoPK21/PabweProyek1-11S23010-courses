@@ -34,14 +34,14 @@ export default function LoginPage() {
           localStorage.setItem("user_id", userId);
         }
 
-        setMessage("✅ Login berhasil!");
+        setMessage("✅ Login successful!");
 
         // Redirect ke halaman utama
         setTimeout(() => {
           window.location.href = "/";
         }, 1000);
       } else {
-        throw new Error("Token tidak ditemukan dalam respons login.");
+        throw new Error("Token not found in login response.");
       }
     } catch (err) {
       setMessage("❌ " + err.message);
@@ -57,7 +57,7 @@ export default function LoginPage() {
           className="text-center fw-bold mb-4"
           style={{ color: "var(--primary-color)" }}
         >
-          Selamat Datang
+          WELCOME
         </h2>
 
         {message && (
@@ -104,11 +104,11 @@ export default function LoginPage() {
                   role="status"
                   aria-hidden="true"
                 ></span>
-                &nbsp;Memuat...
+                &nbsp;Loading...
               </button>
             ) : (
               <button type="submit" className="btn btn-primary">
-                Masuk
+                Enter
               </button>
             )}
           </div>

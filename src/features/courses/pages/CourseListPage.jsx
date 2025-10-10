@@ -1,28 +1,23 @@
-// src/features/courses/pages/CourseListPage.jsx
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Form, InputGroup } from "react-bootstrap"; // Import Form
 import CourseApi from "../../../api/CourseApi";
 import CourseCard from "../components/CourseCard";
-import { Link } from "react-router-dom";
+import { PlusCircleFill, Search } from "react-bootstrap-icons";
 
 export default function CourseListPage() {
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState([]); // Master list
+  const [filteredCourses, setFilteredCourses] = useState([]); // List to display
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
         const res = await CourseApi.getCourses();
-        console.log("📦 Get Courses Response:", res);
-
-        // Sesuaikan dengan struktur data dari API Delcom
-        let data = [];
-        if (Array.isArray(res.data)) {
-          data = res.data;
-        } else if (res.data && Array.isArray(res.data.courses)) {
-          data = res.data.courses;
-        }
-
+        const data = res.data.courses || res.data || [];
         setCourses(data);
+        setFilteredCourses(data); // Inisialisasi daftar yang ditampilkan
       } catch (err) {
         console.error("❌ Error fetch courses:", err.message);
       } finally {
@@ -32,23 +27,52 @@ export default function CourseListPage() {
     load();
   }, []);
 
-  if (loading) return <div className="container mt-5">Loading...</div>;
+  // Effect untuk filtering
+  useEffect(() => {
+    const result = courses.filter((course) =>
+      course.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredCourses(result);
+  }, [searchQuery, courses]);
+
+  if (loading) return <div className="container-fluid">Loading...</div>;
 
   return (
-    <div className="container mt-4">
-      <div className="d-flex justify-content-between mb-3">
-        <h2>Courses</h2>
-        {/* <Link to="/add-course" className="btn btn-success">
-          + Tambah Course
-        </Link> */}
+    <div className="container-fluid">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="fw-bold">Courses</h1>
+        <Link
+          to="/add-course"
+          className="btn btn-primary d-flex align-items-center"
+        >
+          <PlusCircleFill className="me-2" />
+          Add Course
+        </Link>
       </div>
 
-      {courses.length === 0 && (
-        <div className="alert alert-info">Tidak ada courses tersedia</div>
+      {/* Search Bar dengan Ikon */}
+      <InputGroup className="mb-4">
+        <InputGroup.Text>
+          <Search />
+        </InputGroup.Text>
+        <Form.Control
+          type="search"
+          placeholder="Search for course name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </InputGroup>
+
+      {filteredCourses.length === 0 && !loading && (
+        <div className="alert alert-info">
+          {searchQuery
+            ? `Kursus dengan nama "${searchQuery}" tidak ditemukan.`
+            : "Tidak ada kursus yang tersedia."}
+        </div>
       )}
 
       <div className="row">
-        {courses.map((c) => (
+        {filteredCourses.map((c) => (
           <CourseCard key={c.id} course={c} />
         ))}
       </div>

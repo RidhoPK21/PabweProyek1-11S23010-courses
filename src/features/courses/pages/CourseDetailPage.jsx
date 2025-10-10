@@ -24,7 +24,6 @@ export default function CourseDetailPage() {
       if (res.success) {
         const actualCourseData = res.data.course || res.data;
 
-        // Penanganan daftar siswa yang menyebabkan status tidak akurat
         const students = (actualCourseData.students || [])
           .map((item) => {
             const studentId = typeof item === "number" ? item : item.id;
@@ -55,21 +54,18 @@ export default function CourseDetailPage() {
     loadCourse();
   }, [id]);
 
-  const handleContentStatusUpdate = (updatedContentId) => {
-    setCourse((currentCourse) => {
-      if (!currentCourse) return null;
-
-      const newContents = currentCourse.contents.map((content) => {
-        if (content.id === updatedContentId) {
-          // Balikkan status 'is_learned' dari content yang sesuai
-          return { ...content, is_learned: !content.is_learned };
-        }
-        return content;
-      });
-
-      return { ...currentCourse, contents: newContents };
+const handleContentStatusUpdate = (updatedContentId) => {
+  setCourse((currentCourse) => {
+    if (!currentCourse) return null;
+    const newContents = currentCourse.contents.map((content) => {
+      if (content.id === updatedContentId) {
+        return { ...content, is_learned: !content.is_learned };
+      }
+      return content;
     });
-  };
+    return { ...currentCourse, contents: newContents };
+  });
+};
 
   if (loading) return <div className="container mt-5">Loading...</div>;
   if (error)
@@ -85,8 +81,8 @@ export default function CourseDetailPage() {
   return (
     <div className="container mt-5">
       <div className="mb-4">
-        <Link to="/" className="btn btn-outline-secondary">
-          &larr; Kembali ke Daftar
+        <Link to="/courses" className="btn btn-outline-secondary">
+          &larr; Back To List
         </Link>
       </div>
 
@@ -119,7 +115,7 @@ export default function CourseDetailPage() {
 
           <div className="card mt-4">
             <div className="card-body">
-              <h3 className="card-title fw-bold mb-3">Ulasan Kursus</h3>
+              <h3 className="card-title fw-bold mb-3">Course Review</h3>
               {course.ratings && course.ratings.length > 0 ? (
                 <ul className="list-group list-group-flush">
                   {course.ratings.map((rating) => (
@@ -133,7 +129,7 @@ export default function CourseDetailPage() {
                   ))}
                 </ul>
               ) : (
-                <p>Belum ada ulasan untuk kursus ini.</p>
+                <p>There are no reviews for this course yet..</p>
               )}
             </div>
           </div>

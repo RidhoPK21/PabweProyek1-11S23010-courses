@@ -1,43 +1,46 @@
-// src/features/courses/pages/UpdateCoursePage.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // ✅ Tambah useNavigate
-import CourseApi from "../../../api/CourseApi"; // ✅ Ganti ke CourseApi
+import { useParams, useNavigate, Link } from "react-router-dom";
+import CourseApi from "../../../api/CourseApi";
 import CourseForm from "../components/CourseForm";
 
 export default function UpdateCoursePage() {
   const { id } = useParams();
-  const navigate = useNavigate(); // ✅ Inisialisasi navigate
+  const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // ✅ Gunakan CourseApi untuk mengambil data awal
-    CourseApi.getCourseById(id).then((res) => setCourse(res.data));
+    CourseApi.getCourseById(id)
+      // ======================================================
+      // == PERBAIKAN UTAMA ADA DI BARIS INI ==
+      //    Kita pastikan untuk mengambil objek kursus yang benar
+      // ======================================================
+      .then((res) => setCourse(res.data.course || res.data))
+      .catch((err) => {
+        console.error("Gagal memuat kursus:", err);
+        setMessage("❌ Gagal memuat data kursus untuk diedit.");
+      });
   }, [id]);
 
   const handleUpdate = async (formData) => {
     try {
-      // ✅ Panggil CourseApi.updateCourse
       await CourseApi.updateCourse(id, formData);
-      setMessage("✅ Course berhasil diupdate!");
-      setTimeout(() => navigate("/"), 1500); // Redirect setelah update
+      setMessage("✅ Course berhasil diperbarui!");
+      setTimeout(() => navigate(`/courses/${id}`), 1500);
     } catch (err) {
       setMessage("❌ Gagal update course: " + err.message);
-      console.error(err);
     }
   };
 
-  if (!course) return <div className="container mt-5">Loading...</div>;
+  // Tampilkan loading saat 'course' masih null
+  if (!course) {
+    return <div className="container-fluid">Loading course data...</div>;
+  }
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "600px" }}>
-      <div className="mb-4">
-        <Link to={`/courses/${id}`} className="btn btn-outline-secondary">
-          &larr; Batal
-        </Link>
-      </div>
-      <div className="card p-4">
-        <h2 className="mb-4 fw-bold">Update Course</h2>
+    <div className="container-fluid">
+      <div className="card p-4" style={{ maxWidth: "700px", margin: "0 auto" }}>
+        <h1 className="fw-bold mb-4">Update Course</h1>
         {message && <div className="alert alert-info">{message}</div>}
         <CourseForm
           initialData={course}

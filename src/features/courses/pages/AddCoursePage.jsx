@@ -45,12 +45,12 @@ export default function AddCoursePage() {
   return (
     <div className="container mt-5" style={{ maxWidth: "600px" }}>
       <div className="card p-4">
-        <h2 className="mb-4 fw-bold">Tambah Course Baru</h2>
+        <h2 className="mb-4 fw-bold">Add New Course</h2>
         {message && <div className="alert alert-info">{message}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label">Judul</label>
+            <label className="form-label">Title</label>
             <input
               type="text"
               name="title"
@@ -61,7 +61,7 @@ export default function AddCoursePage() {
             />
           </div>
           <div className="mb-3">
-            <label className="form-label">Deskripsi</label>
+            <label className="form-label">Description</label>
             <textarea
               name="description"
               value={form.description}
@@ -83,7 +83,7 @@ export default function AddCoursePage() {
             />
           </div>
           <button type="submit" className="btn btn-primary">
-            Tambah
+            Add
           </button>
         </form>
       </div>

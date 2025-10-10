@@ -27,7 +27,7 @@ export default function CourseForm({ initialData, onSubmit, submitText }) {
   return (
     <form onSubmit={handleSubmit} encType="multipart/form-data">
       <div className="mb-3">
-        <label className="form-label">Judul</label>
+        <label className="form-label">Title</label>
         <input
           className="form-control"
           value={title}
@@ -37,7 +37,7 @@ export default function CourseForm({ initialData, onSubmit, submitText }) {
       </div>
 
       <div className="mb-3">
-        <label className="form-label">Deskripsi</label>
+        <label className="form-label">Description</label>
         <textarea
           className="form-control"
           value={description}

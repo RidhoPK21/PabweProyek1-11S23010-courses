@@ -35,20 +35,20 @@ function CourseActions({ course, onDataChange }) {
         onDataChange();
       }, 500);
     } catch (error) {
-      alert("Gagal bergabung: " + error.message);
+      alert("Failed to join: " + error.message);
     }
   };
 
   const handleLeave = async () => {
-    if (window.confirm("Apakah Anda yakin ingin keluar dari kursus ini?")) {
+    if (window.confirm("Are you sure you want to leave this course??")) {
       try {
         await CourseApi.leaveCourse(course.id);
-        alert("Anda berhasil keluar dari kursus.");
+        alert("You have successfully dropped out of the course.");
         setTimeout(() => {
           onDataChange();
         }, 500);
       } catch (error) {
-        alert("Gagal keluar: " + error.message);
+        alert("Failed to exit: " + error.message);
       }
     }
   };
@@ -60,10 +60,10 @@ function CourseActions({ course, onDataChange }) {
         ratings: rating,
         comment,
       });
-      alert("Rating berhasil dikirim!");
+      alert("Rating successfully submitted!");
       onDataChange();
     } catch (error) {
-      alert("Gagal mengirim rating: " + error.message);
+      alert("Failed to send rating: " + error.message);
     }
   };
 
@@ -71,21 +71,21 @@ function CourseActions({ course, onDataChange }) {
     <div>
       <div className="card mb-4">
         <div className="card-body">
-          <h5 className="card-title">Status Keanggotaan</h5>
+          <h5 className="card-title">Membership Status</h5>
           {isEnrolled ? (
             <div>
               <p className="text-success">
-                Anda sudah terdaftar di kursus ini.
+                You are already enrolled in this course.
               </p>
               <button className="btn btn-danger" onClick={handleLeave}>
-                Keluar dari Kursus
+                Exit Course
               </button>
             </div>
           ) : (
             <div>
-              <p>Anda belum terdaftar di kursus ini.</p>
+              <p>You are not yet enrolled in this course.</p>
               <button className="btn btn-success" onClick={handleJoin}>
-                Gabung Kursus
+                Join Course
               </button>
             </div>
           )}
@@ -95,7 +95,7 @@ function CourseActions({ course, onDataChange }) {
       {isEnrolled && (
         <div className="card">
           <div className="card-body">
-            <h5 className="card-title">Beri Rating</h5>
+            <h5 className="card-title">Rate it</h5>
             <form onSubmit={handleRatingSubmit}>
               <div className="mb-3">
                 <label className="form-label">Rating (1-5)</label>
@@ -110,7 +110,7 @@ function CourseActions({ course, onDataChange }) {
                 />
               </div>
               <div className="mb-3">
-                <label className="form-label">Komentar</label>
+                <label className="form-label">Comment</label>
                 <textarea
                   className="form-control"
                   rows="3"
@@ -119,7 +119,7 @@ function CourseActions({ course, onDataChange }) {
                 ></textarea>
               </div>
               <button type="submit" className="btn btn-primary">
-                Kirim Rating
+                Submit Rating
               </button>
             </form>
           </div>

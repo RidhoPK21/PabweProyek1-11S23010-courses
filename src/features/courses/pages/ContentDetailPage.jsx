@@ -25,7 +25,7 @@ function ContentDetailPage() {
         if (res.success && res.data.course_content) {
           setContent(res.data.course_content);
         } else {
-          throw new Error(res.message || "Konten tidak ditemukan.");
+          throw new Error(res.message || "Content not found.");
         }
       } catch (err) {
         setError(err.message);
@@ -42,7 +42,7 @@ function ContentDetailPage() {
   if (!content)
     return (
       <div className="container mt-5 alert alert-warning">
-        Konten tidak ditemukan.
+        Content not found.
       </div>
     );
 
@@ -52,7 +52,7 @@ function ContentDetailPage() {
     <div className="container mt-5">
       <div className="mb-4">
         <Link to={`/courses/${courseId}`} className="btn btn-outline-secondary">
-          &larr; Kembali ke Detail Kursus
+          &larr; Back to Course Details
         </Link>
       </div>
 
@@ -74,7 +74,7 @@ function ContentDetailPage() {
             </div>
           ) : (
             <p className="alert alert-warning">
-              URL YouTube tidak valid atau tidak tersedia.
+              YouTube URL is invalid or unavailable.
             </p>
           )}
         </div>

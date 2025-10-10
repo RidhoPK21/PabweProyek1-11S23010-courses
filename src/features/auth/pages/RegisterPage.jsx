@@ -27,13 +27,13 @@ export default function RegisterPage() {
           className="text-center fw-bold mb-4"
           style={{ color: "var(--primary-color)" }}
         >
-          Buat Akun Baru
+          Create New Account
         </h2>
         {message && <div className="alert alert-info">{message}</div>}
 
         <form onSubmit={handleRegister}>
           <div className="mb-3">
-            <label className="form-label">Nama</label>
+            <label className="form-label">Name</label>
             <input
               type="text"
               className="form-control"
@@ -72,7 +72,7 @@ export default function RegisterPage() {
           </div>
         </form>
         <p className="text-center mt-3 text-muted small">
-          Sudah punya akun? <Link to="/login">Login di sini</Link>
+          Already have an account? <Link to="/login">Login here</Link>
         </p>
       </div>
     </div>
