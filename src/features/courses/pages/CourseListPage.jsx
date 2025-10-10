@@ -38,9 +38,9 @@ export default function CourseListPage() {
     <div className="container mt-4">
       <div className="d-flex justify-content-between mb-3">
         <h2>Courses</h2>
-        <Link to="/add-course" className="btn btn-success">
+        {/* <Link to="/add-course" className="btn btn-success">
           + Tambah Course
-        </Link>
+        </Link> */}
       </div>
 
       {courses.length === 0 && (
