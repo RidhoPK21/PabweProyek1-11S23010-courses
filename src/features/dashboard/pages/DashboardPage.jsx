@@ -1,51 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, Row, Col } from "react-bootstrap";
 import { Book, People } from "react-bootstrap-icons";
+import useApi from "../../../hooks/useApi"; // Impor custom hook
 import authApi from "../../../api/authApi";
 import courseApi from "../../../api/CourseApi";
-import CourseCard from "../../courses/components/CourseCard"; // Import CourseCard
+import CourseCard from "../../courses/components/CourseCard";
 
 function DashboardPage() {
-  const [stats, setStats] = useState({ courses: 0, users: 0 });
-  const [topCourses, setTopCourses] = useState([]); // State untuk kursus rating tertinggi
-  const [loading, setLoading] = useState(true);
+  // Gunakan custom hook untuk mengambil data kursus dan pengguna
+  const { data: coursesData, loading: coursesLoading } = useApi(
+    courseApi.getCourses
+  );
+  const { data: usersData, loading: usersLoading } = useApi(
+    authApi.getAllUsers
+  );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [coursesRes, usersRes] = await Promise.all([
-          courseApi.getCourses(),
-          authApi.getAllUsers(),
-        ]);
+  const loading = coursesLoading || usersLoading;
 
-        const allCourses = coursesRes.data.courses || coursesRes.data || [];
-        const totalUsers = usersRes.users?.length || usersRes?.length || 0;
+  const allCourses = coursesData?.data?.courses || coursesData?.data || [];
+  const totalUsers = usersData?.users?.length || usersData?.length || 0;
 
-        // Logika untuk menghitung rating, mengurutkan, dan mengambil 4 teratas
-        const sortedCourses = allCourses
-          .map((course) => {
-            const ratings = course.ratings || [];
-            const totalRating = ratings.reduce((sum, r) => sum + r.ratings, 0);
-            const averageRating =
-              ratings.length > 0 ? totalRating / ratings.length : 0;
-            return { ...course, averageRating };
-          })
-          .sort((a, b) => b.averageRating - a.averageRating);
-
-        setTopCourses(sortedCourses.slice(0, 4));
-
-        setStats({
-          courses: allCourses.length,
-          users: totalUsers,
-        });
-      } catch (error) {
-        console.error("Failed to fetch dashboard data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  // Logika untuk mengurutkan kursus berdasarkan rating
+  const topCourses = allCourses
+    .map((course) => {
+      const ratings = course.ratings || [];
+      const totalRating = ratings.reduce((sum, r) => sum + r.ratings, 0);
+      const averageRating =
+        ratings.length > 0 ? totalRating / ratings.length : 0;
+      return { ...course, averageRating };
+    })
+    .sort((a, b) => b.averageRating - a.averageRating)
+    .slice(0, 4);
 
   return (
     <div className="container-fluid">
@@ -56,7 +41,6 @@ function DashboardPage() {
         </p>
       </div>
 
-      {/* Hanya tampilkan 2 kartu statistik */}
       <Row>
         <Col md={6} className="mb-4">
           <Card className="h-100">
@@ -66,7 +50,7 @@ function DashboardPage() {
               </div>
               <div>
                 <h4 className="fw-bold mb-0">
-                  {loading ? "..." : stats.courses}
+                  {loading ? "..." : allCourses.length}
                 </h4>
                 <p className="text-muted mb-0">Total Courses</p>
               </div>
@@ -80,9 +64,7 @@ function DashboardPage() {
                 <People size={30} />
               </div>
               <div>
-                <h4 className="fw-bold mb-0">
-                  {loading ? "..." : stats.users}
-                </h4>
+                <h4 className="fw-bold mb-0">{loading ? "..." : totalUsers}</h4>
                 <p className="text-muted mb-0">Total Users</p>
               </div>
             </Card.Body>
@@ -90,9 +72,8 @@ function DashboardPage() {
         </Col>
       </Row>
 
-      {/* Bagian Rekomendasi Kursus */}
       <div className="mt-4">
-        <h3 className="fw-bold mb-3">Recently Added</h3>
+        <h3 className="fw-bold mb-3">Top Rated Courses</h3>
         {loading ? (
           <p>Loading recommendations...</p>
         ) : (
