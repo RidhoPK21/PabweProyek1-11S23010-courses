@@ -2,7 +2,7 @@
 import apiHelper from "../helpers/apiHelper";
 
 const CourseApi = (() => {
-  const BASE_URL = `/api/courses`;
+  const BASE_URL = import.meta.env.VITE_DELCOM_BASEURL;
 
   // --- Course Management ---
   async function getCourses() {

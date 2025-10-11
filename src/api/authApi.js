@@ -3,9 +3,8 @@ import apiHelper from "../helpers/apiHelper";
 
 const authApi = (() => {
   // Base URL untuk endpoint otentikasi
-  const AUTH_BASE_URL = `/api/auth`;
-  // Base URL untuk endpoint data pengguna (profil)
-  const USER_BASE_URL = `/api/users`;
+  const AUTH_BASE_URL = `${import.meta.env.VITE_DELCOM_BASEURL}/auth`;
+  const USER_BASE_URL = `${import.meta.env.VITE_DELCOM_BASEURL}/users`;
 
   // --- FUNGSI OTENTIKASI ---
   async function postLogin(email, password) {
