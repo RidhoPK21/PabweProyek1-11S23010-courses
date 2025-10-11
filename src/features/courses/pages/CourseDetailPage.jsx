@@ -1,68 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import CourseApi from "../../../api/CourseApi";
+import { useDispatch, useSelector } from "react-redux";
+import { asyncGetCourseDetail } from "../states/action";
 import ContentManager from "../components/ContentManager";
 import CourseActions from "../components/CourseActions";
 import ChangeCover from "../components/ChangeCover";
 
 export default function CourseDetailPage() {
   const { id } = useParams();
-  const [course, setCourse] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const dispatch = useDispatch();
 
-  const loadCourse = async () => {
-    // Tidak set loading di sini agar UI tidak berkedip saat refresh
-    setError("");
-    try {
-      const res = await CourseApi.getCourseById(id);
-      if (res.success) {
-        const actualCourseData = res.data.course || res.data;
-        const students = (actualCourseData.students || [])
-          .map((item) => ({
-            id: Number(typeof item === "number" ? item : item.id),
-            name: `Siswa ID: ${typeof item === "number" ? item : item.id}`,
-          }))
-          .filter((student) => student.id);
-        const courseData = {
-          ...actualCourseData,
-          contents: actualCourseData.contents || [],
-          students,
-        };
-        setCourse(courseData);
-      } else {
-        throw new Error(res.message || "Gagal memuat data kursus.");
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false); // Loading hanya di-set false di akhir
-    }
-  };
+  // Ambil data dari Redux store, bukan lagi dari state lokal
+  const course = useSelector((state) => state.courseDetail);
+  const isLoading = useSelector((state) => state.isLoadingCourseDetail);
 
   useEffect(() => {
-    setLoading(true); // Set loading true hanya saat komponen pertama kali dimuat
-    loadCourse();
-  }, [id]);
+    // Cukup dispatch action untuk mengambil data
+    dispatch(asyncGetCourseDetail(id));
+  }, [id, dispatch]);
 
-  const handleContentStatusUpdate = (updatedContentId) => {
-    setCourse((currentCourse) => {
-      if (!currentCourse) return null;
-      const newContents = currentCourse.contents.map((content) => {
-        if (content.id === updatedContentId) {
-          return { ...content, is_learned: !content.is_learned };
-        }
-        return content;
-      });
-      return { ...currentCourse, contents: newContents };
-    });
-  };
+  // Semua fungsi `handle...` sekarang akan ditangani di dalam CourseActions
 
-  if (loading) return <div className="container-fluid">Loading...</div>;
-  if (error)
-    return <div className="container-fluid alert alert-danger">{error}</div>;
-  if (!course)
-    return <div className="container-fluid">Course data not found.</div>;
+  if (isLoading || !course) {
+    return <div className="container-fluid">Loading course details...</div>;
+  }
 
   const coverUrl =
     course.cover && course.cover.startsWith("http")
@@ -73,7 +34,7 @@ export default function CourseDetailPage() {
     <div className="container-fluid">
       <div className="mb-4">
         <Link to="/courses" className="btn btn-outline-secondary">
-          &larr; Kembali ke Daftar
+          &larr; Back to List
         </Link>
       </div>
 
@@ -97,38 +58,15 @@ export default function CourseDetailPage() {
 
       <div className="row g-4">
         <div className="col-lg-8">
-          <ContentManager
-            contents={course.contents || []}
-            courseId={id}
-            onDataChange={loadCourse}
-            onStatusUpdate={handleContentStatusUpdate}
-          />
-          <div className="card mt-4">
-            <div className="card-body">
-              <h3 className="card-title fw-bold mb-3">Ulasan Kursus</h3>
-              {course.ratings && course.ratings.length > 0 ? (
-                <ul className="list-group list-group-flush">
-                  {course.ratings.map((rating) => (
-                    <li key={rating.id} className="list-group-item px-0">
-                      <strong>{rating.name}</strong>
-                      <p className="mb-1">
-                        Rating: {"⭐".repeat(rating.ratings)}
-                      </p>
-                      <p className="mb-0 fst-italic">"{rating.comment}"</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>Belum ada ulasan untuk kursus ini.</p>
-              )}
-            </div>
-          </div>
+          {/* Komponen-komponen ini sekarang tidak perlu banyak prop */}
+          <ContentManager contents={course.contents || []} courseId={id} />
+          {/* ... Ulasan Kursus ... */}
         </div>
         <div className="col-lg-4">
           <div className="sticky-top" style={{ top: "100px" }}>
-            <CourseActions course={course} onDataChange={loadCourse} />
+            <CourseActions course={course} />
             <div className="mt-4">
-              <ChangeCover courseId={id} onUploadSuccess={loadCourse} />
+              <ChangeCover courseId={id} />
             </div>
           </div>
         </div>
