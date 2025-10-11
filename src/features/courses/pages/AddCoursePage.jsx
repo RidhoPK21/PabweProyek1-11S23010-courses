@@ -23,29 +23,26 @@ export default function AddCoursePage() {
     e.preventDefault();
 
     if (!form.cover) {
-      setMessage("❌ Cover wajib dipilih!");
+      setMessage("❌ Cover is required!");
       return;
     }
 
     try {
-      console.log("📤 DEBUG form:", form);
-      console.log("📤 cover instanceof File:", form.cover instanceof File);
-
       const res = await CourseApi.addCourse(form);
       setMessage("✅ " + res.message);
 
-      // redirect setelah 1 detik
-      setTimeout(() => navigate("/"), 1000);
+      // PERBAIKAN: Redirect ke halaman daftar kursus
+      setTimeout(() => navigate("/courses"), 1500);
     } catch (err) {
-      setMessage("❌ Gagal menambahkan course: " + err.message);
+      setMessage("❌ Failed to add course: " + err.message);
       console.error("❌ ERROR detail:", err);
     }
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "600px" }}>
-      <div className="card p-4">
-        <h2 className="mb-4 fw-bold">Add New Course</h2>
+    <div className="container-fluid">
+      <div className="card p-4" style={{ maxWidth: "700px", margin: "0 auto" }}>
+        <h1 className="fw-bold mb-4">Add New Course</h1>
         {message && <div className="alert alert-info">{message}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -83,7 +80,7 @@ export default function AddCoursePage() {
             />
           </div>
           <button type="submit" className="btn btn-primary">
-            Add
+            Add Course
           </button>
         </form>
       </div>
