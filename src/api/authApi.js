@@ -2,7 +2,8 @@
 import apiHelper from "../helpers/apiHelper";
 
 const authApi = (() => {
-  // Base URL untuk endpoint otentikasi
+  // --- PERBAIKAN UTAMA ADA DI SINI ---
+  // Base URL diambil dari environment variable untuk production
   const AUTH_BASE_URL = `${import.meta.env.VITE_DELCOM_BASEURL}/auth`;
   const USER_BASE_URL = `${import.meta.env.VITE_DELCOM_BASEURL}/users`;
 
@@ -30,25 +31,13 @@ const authApi = (() => {
   }
 
   // --- FUNGSI PROFIL PENGGUNA ---
-
-  /**
-   * Mengambil data profil pengguna yang sedang login.
-   * Method: GET
-   * URL: /users/me
-   */
   async function getProfile() {
     const response = await apiHelper.fetchData(`${USER_BASE_URL}/me`);
     const resJson = await response.json();
     if (!resJson.success) throw new Error(resJson.message);
-    return resJson.data; // Mengembalikan data pengguna
+    return resJson.data;
   }
 
-  /**
-   * Memperbarui informasi profil (nama, email).
-   * Method: PUT
-   * URL: /users/me
-   * Body: x-www-form-urlencoded
-   */
   async function updateProfile(profileData) {
     const urlEncodedBody = new URLSearchParams(profileData);
     const response = await apiHelper.fetchData(`${USER_BASE_URL}/me`, {
@@ -61,28 +50,16 @@ const authApi = (() => {
     return resJson;
   }
 
-  /**
-   * Mengubah foto profil.
-   * Method: POST
-   * URL: /users/photo
-   * Body: multipart/form-data
-   */
   async function changePhoto(formData) {
     const response = await apiHelper.fetchData(`${USER_BASE_URL}/photo`, {
       method: "POST",
-      body: formData, // FormData sudah otomatis set header multipart/form-data
+      body: formData,
     });
     const resJson = await response.json();
     if (!resJson.success) throw new Error(resJson.message);
     return resJson;
   }
 
-  /**
-   * Mengubah password pengguna.
-   * Method: PUT
-   * URL: /users/password
-   * Body: x-www-form-urlencoded
-   */
   async function changePassword(passwordData) {
     const urlEncodedBody = new URLSearchParams(passwordData);
     const response = await apiHelper.fetchData(`${USER_BASE_URL}/password`, {
@@ -109,7 +86,7 @@ const authApi = (() => {
     updateProfile,
     changePhoto,
     changePassword,
-    getAllUsers, // Ekspor fungsi baru
+    getAllUsers,
   };
 })();
 

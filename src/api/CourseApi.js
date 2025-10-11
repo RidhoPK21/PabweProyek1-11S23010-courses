@@ -2,11 +2,13 @@
 import apiHelper from "../helpers/apiHelper";
 
 const CourseApi = (() => {
+  // BASE_URL sudah benar mengambil dari environment variable
   const BASE_URL = import.meta.env.VITE_DELCOM_BASEURL;
 
   // --- Course Management ---
   async function getCourses() {
-    const response = await apiHelper.fetchData(BASE_URL);
+    // PERBAIKAN: Tambahkan path '/courses'
+    const response = await apiHelper.fetchData(`${BASE_URL}/courses`);
     const resJson = await response.json();
     if (!resJson.success) {
       throw new Error(resJson.message);
@@ -15,8 +17,8 @@ const CourseApi = (() => {
   }
 
   async function getCourseById(id) {
-    const url = `${BASE_URL}/${id}`;
-
+    // PERBAIKAN: Tambahkan path '/courses/'
+    const url = `${BASE_URL}/courses/${id}`;
     const response = await apiHelper.fetchData(url);
     const resJson = await response.json();
     if (!resJson.success) {
@@ -31,7 +33,8 @@ const CourseApi = (() => {
     formData.append("description", data.description);
     if (data.cover) formData.append("cover", data.cover);
 
-    const res = await apiHelper.fetchData(BASE_URL, {
+    // PERBAIKAN: Tambahkan path '/courses'
+    const res = await apiHelper.fetchData(`${BASE_URL}/courses`, {
       method: "POST",
       body: formData,
     });
@@ -40,7 +43,8 @@ const CourseApi = (() => {
 
   async function updateCourse(id, formData) {
     formData.append("_method", "PUT");
-    const res = await apiHelper.fetchData(`${BASE_URL}/${id}`, {
+    // PERBAIKAN: Tambahkan path '/courses/'
+    const res = await apiHelper.fetchData(`${BASE_URL}/courses/${id}`, {
       method: "POST",
       body: formData,
     });
@@ -51,7 +55,8 @@ const CourseApi = (() => {
     const formData = new FormData();
     formData.append("cover", coverFile);
     formData.append("_method", "PATCH");
-    const res = await apiHelper.fetchData(`${BASE_URL}/${id}/cover`, {
+    // PERBAIKAN: Tambahkan path '/courses/.../cover'
+    const res = await apiHelper.fetchData(`${BASE_URL}/courses/${id}/cover`, {
       method: "POST",
       body: formData,
     });
@@ -59,22 +64,22 @@ const CourseApi = (() => {
   }
 
   async function deleteCourse(id) {
-    const res = await apiHelper.fetchData(`${BASE_URL}/${id}`, {
+    // PERBAIKAN: Tambahkan path '/courses/'
+    const res = await apiHelper.fetchData(`${BASE_URL}/courses/${id}`, {
       method: "DELETE",
     });
     return res.json();
   }
 
-
   async function changeContentStatus(contentId, statusData) {
     const cleanContentId = String(contentId).split(":")[0];
-    const urlEncodedBody = new URLSearchParams(statusData); // statusData akan menjadi { status: 1 } atau { status: 0 }
+    const urlEncodedBody = new URLSearchParams(statusData);
 
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/-/contents/${cleanContentId}/learns`, // URL Sesuai dokumentasi
+      `${BASE_URL}/courses/-/contents/${cleanContentId}/learns`,
       {
-        method: "POST", // Method POST
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }, // Header Sesuai dokumentasi
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: urlEncodedBody,
       }
     );
@@ -82,44 +87,35 @@ const CourseApi = (() => {
   }
 
   // --- Student Management ---
-  async function getStudentsByCourseId(courseId) {
-    const response = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/students`,
-      { method: "GET" }
+  async function addStudent(courseId) {
+    const res = await apiHelper.fetchData(
+      `${BASE_URL}/courses/${courseId}/students`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
     );
-    const resJson = await response.json();
+    const resJson = await res.json();
     if (!resJson.success) {
-      throw new Error(resJson.message);
+      throw new Error(resJson.message || "Gagal mendaftar ke kursus.");
     }
     return resJson;
   }
 
-  // ✅ REVERTED: Hanya courseId, mengandalkan token di header
-async function addStudent(courseId) {
-  const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    // Body tidak diperlukan karena API menggunakan token
-  });
-  const resJson = await res.json();
-  if (!resJson.success) {
-    // KRITIS: Cek sukses dari JSON response
-    throw new Error(resJson.message || "Gagal mendaftar ke kursus.");
-  }
-  return resJson;
-}
-
   async function leaveCourse(courseId) {
-    const res = await apiHelper.fetchData(`${BASE_URL}/${courseId}/students`, {
-      method: "DELETE",
-    });
+    const res = await apiHelper.fetchData(
+      `${BASE_URL}/courses/${courseId}/students`,
+      {
+        method: "DELETE",
+      }
+    );
     return res.json();
   }
 
   async function changeMyRating(courseId, ratingData) {
     const urlEncodedBody = new URLSearchParams(ratingData);
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/students/ratings`, // URL sesuai dokumentasi
+      `${BASE_URL}/courses/${courseId}/students/ratings`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -129,10 +125,10 @@ async function addStudent(courseId) {
     return res.json();
   }
 
-  // --- Content Management (dibiarkan tetap) ---
+  // --- Content Management ---
   async function addContent(courseId, contentData) {
     const response = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents`,
+      `${BASE_URL}/courses/${courseId}/contents`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -149,7 +145,7 @@ async function addStudent(courseId) {
   async function getContentById(courseId, contentId) {
     const cleanContentId = String(contentId).split(":")[0];
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/-/contents/${cleanContentId}`
+      `${BASE_URL}/courses/-/contents/${cleanContentId}`
     );
     return res.json();
   }
@@ -162,7 +158,7 @@ async function addStudent(courseId) {
     const urlEncodedBody = new URLSearchParams(payload);
 
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/-/contents/${contentId}`,
+      `${BASE_URL}/courses/-/contents/${contentId}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -174,9 +170,8 @@ async function addStudent(courseId) {
 
   async function deleteContent(courseId, contentId) {
     const cleanContentId = String(contentId).split(":")[0];
-
     const res = await apiHelper.fetchData(
-      `${BASE_URL}/-/contents/${cleanContentId}`,
+      `${BASE_URL}/courses/-/contents/${cleanContentId}`,
       {
         method: "DELETE",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -185,27 +180,26 @@ async function addStudent(courseId) {
     return res.json();
   }
 
-  // async function changeContentStatus(courseId, contentId, statusData) {
-  //   const res = await apiHelper.fetchData(
-  //     `${BASE_URL}/${courseId}/contents/${contentId}/status`,
-  //     {
-  //       method: "PATCH",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(statusData),
-  //     }
-  //   );
-  //   return res.json();
-  // }
-
   async function getContentsByCourseId(courseId) {
     const response = await apiHelper.fetchData(
-      `${BASE_URL}/${courseId}/contents`,
+      `${BASE_URL}/courses/${courseId}/contents`,
       { method: "GET" }
     );
     const resJson = await response.json();
     if (!resJson.success) {
       throw new Error(resJson.message);
     }
+    return resJson;
+  }
+
+  // getStudentsByCourseId juga perlu URL lengkap
+  async function getStudentsByCourseId(courseId) {
+    const response = await apiHelper.fetchData(
+      `${BASE_URL}/courses/${courseId}/students`,
+      { method: "GET" }
+    );
+    const resJson = await response.json();
+    if (!resJson.success) throw new Error(resJson.message);
     return resJson;
   }
 
@@ -226,7 +220,6 @@ async function addStudent(courseId) {
     deleteContent,
     changeContentStatus,
     getContentsByCourseId,
-    changeContentStatus,
   };
 })();
 
