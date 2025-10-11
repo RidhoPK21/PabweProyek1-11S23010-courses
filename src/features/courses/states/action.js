@@ -49,3 +49,35 @@ export function asyncEnrollCourse(courseId) {
     }
   };
 }
+
+// ======================================================
+// == FUNGSI YANG HILANG: asyncLeaveCourse (Tambahkan ini)
+// ======================================================
+export function asyncLeaveCourse(courseId) {
+  return async (dispatch) => {
+    try {
+      await CourseApi.leaveCourse(courseId);
+      showSuccessDialog("You have successfully left this course.");
+      // Ambil data terbaru untuk update UI
+      dispatch(asyncGetCourseDetail(courseId));
+    } catch (error) {
+      showErrorDialog(error.message);
+    }
+  };
+}
+
+// ======================================================
+// == FUNGSI YANG HILANG: asyncChangeRating (Tambahkan ini)
+// ======================================================
+export function asyncChangeRating({ courseId, ratings, comment }) {
+  return async (dispatch) => {
+    try {
+      await CourseApi.changeMyRating(courseId, { ratings, comment });
+      showSuccessDialog("Your rating has been submitted successfully!");
+      // Ambil data terbaru untuk update UI
+      dispatch(asyncGetCourseDetail(courseId));
+    } catch (error) {
+      showErrorDialog(error.message);
+    }
+  };
+}
