@@ -19,7 +19,7 @@ function CourseActions({ course, onDataChange, onJoinSuccess }) {
     try {
       await CourseApi.addStudent(course.id);
       alert("You have successfully joined this course!");
-      onJoinSuccess(); // Panggil fungsi ini untuk update UI instan
+      onJoinSuccess();
     } catch (error) {
       alert("Failed to join course: " + error.message);
     }

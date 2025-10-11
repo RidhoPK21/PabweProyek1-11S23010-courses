@@ -58,7 +58,6 @@ export default function CourseDetailPage() {
   };
 
   const handleMembershipChange = () => {
-    // Fungsi ini akan memaksa data dimuat ulang, digunakan untuk leave & rating
     loadCourse();
   };
 
@@ -66,7 +65,6 @@ export default function CourseDetailPage() {
     const userId = localStorage.getItem("user_id");
     if (!userId) return;
 
-    // Update state course secara lokal untuk pembaruan UI instan
     setCourse((currentCourse) => {
       if (!currentCourse) return null;
       const newStudent = { id: Number(userId), name: "current_user" };
