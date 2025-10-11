@@ -116,7 +116,7 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center mt-3 text-muted small">
-          Belum punya akun? <Link to="/register">Register di sini</Link>
+          Don't have an account yet? <Link to="/register">Register here</Link>
         </p>
       </div>
     </div>
