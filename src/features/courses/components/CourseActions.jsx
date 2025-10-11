@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CourseApi from "../../../api/CourseApi";
 
-function CourseActions({ course, onDataChange, onJoinSuccess }) {
+function CourseActions({ course, onDataChange }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
@@ -19,7 +19,7 @@ function CourseActions({ course, onDataChange, onJoinSuccess }) {
     try {
       await CourseApi.addStudent(course.id);
       alert("You have successfully joined this course!");
-      onJoinSuccess();
+      setTimeout(onDataChange, 500); // Gunakan onDataChange
     } catch (error) {
       alert("Failed to join course: " + error.message);
     }

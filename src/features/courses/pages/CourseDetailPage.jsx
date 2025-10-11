@@ -13,7 +13,6 @@ export default function CourseDetailPage() {
 
   const loadCourse = async () => {
     setLoading(true);
-    setError("");
     try {
       const res = await CourseApi.getCourseById(id);
       if (res.success) {
@@ -27,7 +26,7 @@ export default function CourseDetailPage() {
         const courseData = {
           ...actualCourseData,
           contents: actualCourseData.contents || [],
-          students: students,
+          students,
         };
         setCourse(courseData);
       } else {
@@ -54,22 +53,6 @@ export default function CourseDetailPage() {
         return content;
       });
       return { ...currentCourse, contents: newContents };
-    });
-  };
-
-  const handleMembershipChange = () => {
-    loadCourse();
-  };
-
-  const handleJoinSuccess = () => {
-    const userId = localStorage.getItem("user_id");
-    if (!userId) return;
-
-    setCourse((currentCourse) => {
-      if (!currentCourse) return null;
-      const newStudent = { id: Number(userId), name: "current_user" };
-      const updatedStudents = [...currentCourse.students, newStudent];
-      return { ...currentCourse, students: updatedStudents };
     });
   };
 
@@ -140,11 +123,7 @@ export default function CourseDetailPage() {
         </div>
         <div className="col-lg-4">
           <div className="sticky-top" style={{ top: "100px" }}>
-            <CourseActions
-              course={course}
-              onDataChange={handleMembershipChange}
-              onJoinSuccess={handleJoinSuccess}
-            />
+            <CourseActions course={course} onDataChange={loadCourse} />
             <div className="mt-4">
               <ChangeCover courseId={id} onUploadSuccess={loadCourse} />
             </div>
