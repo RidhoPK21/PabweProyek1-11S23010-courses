@@ -1,4 +1,3 @@
-// src/features/courses/pages/CourseDetailPage.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import CourseApi from "../../../api/CourseApi";
@@ -13,27 +12,18 @@ export default function CourseDetailPage() {
   const [error, setError] = useState("");
 
   const loadCourse = async () => {
-    console.log("FUNGSI loadCourse DI CourseDetailPage TERPANGGIL!");
-
     setLoading(true);
     setError("");
     try {
       const res = await CourseApi.getCourseById(id);
-      console.log("DATA MENTAH DARI API:", res);
-
       if (res.success) {
         const actualCourseData = res.data.course || res.data;
-
         const students = (actualCourseData.students || [])
-          .map((item) => {
-            const studentId = typeof item === "number" ? item : item.id;
-            return {
-              id: Number(studentId), // Pastikan selalu number untuk perbandingan
-              name: `Siswa ID: ${studentId}`,
-            };
-          })
+          .map((item) => ({
+            id: Number(typeof item === "number" ? item : item.id),
+            name: `Siswa ID: ${typeof item === "number" ? item : item.id}`,
+          }))
           .filter((student) => student.id);
-
         const courseData = {
           ...actualCourseData,
           contents: actualCourseData.contents || [],
@@ -54,24 +44,41 @@ export default function CourseDetailPage() {
     loadCourse();
   }, [id]);
 
-const handleContentStatusUpdate = (updatedContentId) => {
-  setCourse((currentCourse) => {
-    if (!currentCourse) return null;
-    const newContents = currentCourse.contents.map((content) => {
-      if (content.id === updatedContentId) {
-        return { ...content, is_learned: !content.is_learned };
-      }
-      return content;
+  const handleContentStatusUpdate = (updatedContentId) => {
+    setCourse((currentCourse) => {
+      if (!currentCourse) return null;
+      const newContents = currentCourse.contents.map((content) => {
+        if (content.id === updatedContentId) {
+          return { ...content, is_learned: !content.is_learned };
+        }
+        return content;
+      });
+      return { ...currentCourse, contents: newContents };
     });
-    return { ...currentCourse, contents: newContents };
-  });
-};
+  };
 
-  if (loading) return <div className="container mt-5">Loading...</div>;
+  const handleMembershipChange = () => {
+    // Fungsi ini akan memaksa data dimuat ulang, digunakan untuk leave & rating
+    loadCourse();
+  };
+
+  const handleJoinSuccess = () => {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) return;
+
+    // Update state course secara lokal untuk pembaruan UI instan
+    setCourse((currentCourse) => {
+      if (!currentCourse) return null;
+      const newStudent = { id: Number(userId), name: "current_user" };
+      const updatedStudents = [...currentCourse.students, newStudent];
+      return { ...currentCourse, students: updatedStudents };
+    });
+  };
+
+  if (loading || !course)
+    return <div className="container-fluid">Loading...</div>;
   if (error)
-    return <div className="container mt-5 alert alert-danger">{error}</div>;
-  if (!course)
-    return <div className="container mt-5">Loading course details...</div>;
+    return <div className="container-fluid alert alert-danger">{error}</div>;
 
   const coverUrl =
     course.cover && course.cover.startsWith("http")
@@ -79,10 +86,10 @@ const handleContentStatusUpdate = (updatedContentId) => {
       : `${import.meta.env.VITE_DELCOM_BASEURL}/storage/${course.cover}`;
 
   return (
-    <div className="container mt-5">
+    <div className="container-fluid">
       <div className="mb-4">
         <Link to="/courses" className="btn btn-outline-secondary">
-          &larr; Back To List
+          &larr; Kembali ke Daftar
         </Link>
       </div>
 
@@ -110,12 +117,11 @@ const handleContentStatusUpdate = (updatedContentId) => {
             contents={course.contents || []}
             courseId={id}
             onDataChange={loadCourse}
-            onStatusUpdate={handleContentStatusUpdate} // Prop BARU
+            onStatusUpdate={handleContentStatusUpdate}
           />
-
           <div className="card mt-4">
             <div className="card-body">
-              <h3 className="card-title fw-bold mb-3">Course Review</h3>
+              <h3 className="card-title fw-bold mb-3">Ulasan Kursus</h3>
               {course.ratings && course.ratings.length > 0 ? (
                 <ul className="list-group list-group-flush">
                   {course.ratings.map((rating) => (
@@ -129,14 +135,18 @@ const handleContentStatusUpdate = (updatedContentId) => {
                   ))}
                 </ul>
               ) : (
-                <p>There are no reviews for this course yet..</p>
+                <p>Belum ada ulasan untuk kursus ini.</p>
               )}
             </div>
           </div>
         </div>
         <div className="col-lg-4">
           <div className="sticky-top" style={{ top: "100px" }}>
-            <CourseActions course={course} onDataChange={loadCourse} />
+            <CourseActions
+              course={course}
+              onDataChange={handleMembershipChange}
+              onJoinSuccess={handleJoinSuccess}
+            />
             <div className="mt-4">
               <ChangeCover courseId={id} onUploadSuccess={loadCourse} />
             </div>

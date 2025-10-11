@@ -1,60 +1,42 @@
 import React, { useState, useEffect } from "react";
 import CourseApi from "../../../api/CourseApi";
 
-/**
- * Komponen untuk menampilkan aksi yang bisa dilakukan pengguna pada sebuah kursus,
- * seperti bergabung, keluar, dan memberikan rating.
- * @param {{course: object, onDataChange: Function}} props
- */
-function CourseActions({ course, onDataChange }) {
+function CourseActions({ course, onDataChange, onJoinSuccess }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
   useEffect(() => {
-    // Memperbarui state rating dan comment setiap kali data kursus berubah
     setRating(course.my_ratings?.ratings || 0);
     setComment(course.my_ratings?.comment || "");
   }, [course]);
 
-  // PERBAIKAN: Mengambil ID pengguna dari localStorage, bukan hardcoded
   const currentUserId = localStorage.getItem("user_id");
-
-  // Mengecek apakah pengguna saat ini sudah terdaftar di kursus
   const isEnrolled =
     course.students &&
     course.students.some((s) => s.id === Number(currentUserId));
 
-  /**
-   * Menangani aksi pengguna untuk bergabung ke kursus.
-   */
   const handleJoin = async () => {
     try {
       await CourseApi.addStudent(course.id);
       alert("You have successfully joined this course!");
-      setTimeout(onDataChange, 500); // Refresh data setelah jeda singkat
+      onJoinSuccess(); // Panggil fungsi ini untuk update UI instan
     } catch (error) {
       alert("Failed to join course: " + error.message);
     }
   };
 
-  /**
-   * Menangani aksi pengguna untuk keluar dari kursus.
-   */
   const handleLeave = async () => {
     if (window.confirm("Are you sure you want to leave this course?")) {
       try {
         await CourseApi.leaveCourse(course.id);
         alert("You have successfully left the course.");
-        setTimeout(onDataChange, 500); // Refresh data setelah jeda singkat
+        setTimeout(onDataChange, 500);
       } catch (error) {
         alert("Failed to leave course: " + error.message);
       }
     }
   };
 
-  /**
-   * Menangani pengiriman rating dan komentar.
-   */
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
     try {
