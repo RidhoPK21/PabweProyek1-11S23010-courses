@@ -17,13 +17,15 @@ function CourseActions({ course }) {
     setComment(course.my_ratings?.comment || "");
   }, [course]);
 
+  // Ambil user ID dari local storage (dipastikan String)
   const currentUserId = localStorage.getItem("user_id");
 
-  // ✅ PERBAIKAN: Pastikan s.id dikonversi menjadi String
-  // agar perbandingan tipe data konsisten dengan currentUserId (String)
+  // ✅ PERBAIKAN FINAL:
+  // Asumsi: `course.students` adalah array of ID murni, BUKAN array of object.
+  // Bandingkan ID siswa (diubah ke String) dengan currentUserId (String).
   const isEnrolled =
     course.students &&
-    course.students.some((s) => String(s.id) === currentUserId);
+    course.students.some((studentId) => String(studentId) === currentUserId);
 
   const handleJoin = () => {
     dispatch(asyncEnrollCourse(course.id));
