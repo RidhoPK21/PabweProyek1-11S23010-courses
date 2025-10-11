@@ -4,7 +4,7 @@ import {
   asyncEnrollCourse,
   asyncLeaveCourse,
   asyncChangeRating,
-} from "../states/action"; // Impor thunks
+} from "../states/action";
 
 function CourseActions({ course }) {
   const dispatch = useDispatch();
@@ -19,8 +19,8 @@ function CourseActions({ course }) {
 
   const currentUserId = localStorage.getItem("user_id");
 
-  // ✅ PERBAIKAN UTAMA: Pastikan s.id dikonversi menjadi String
-  // untuk perbandingan yang konsisten dengan currentUserId (yang juga string dari localStorage)
+  // ✅ PERBAIKAN: Pastikan s.id dikonversi menjadi String
+  // agar perbandingan tipe data konsisten dengan currentUserId (String)
   const isEnrolled =
     course.students &&
     course.students.some((s) => String(s.id) === currentUserId);
@@ -30,13 +30,12 @@ function CourseActions({ course }) {
   };
 
   const handleLeave = () => {
-    // Anda mungkin ingin menambahkan konfirmasi di sini sebelum dispatch
     dispatch(asyncLeaveCourse(course.id));
   };
 
   const handleRatingSubmit = (e) => {
     e.preventDefault();
-    // Pastikan rating dikirim sebagai Number jika diperlukan oleh API
+    // Pastikan rating dikirim sebagai Number
     const submittedRating = Number(rating);
     dispatch(
       asyncChangeRating({
