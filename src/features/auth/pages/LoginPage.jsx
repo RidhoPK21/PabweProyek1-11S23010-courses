@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom"; // 1. Impor komponen Link
 import authApi from "../../../api/authApi";
 
 export default function LoginPage() {
@@ -113,6 +114,10 @@ export default function LoginPage() {
             )}
           </div>
         </form>
+
+        <p className="text-center mt-3 text-muted small">
+          Belum punya akun? <Link to="/register">Register di sini</Link>
+        </p>
       </div>
     </div>
   );
