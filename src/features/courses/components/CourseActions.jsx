@@ -21,11 +21,11 @@ function CourseActions({ course }) {
   const currentUserId = localStorage.getItem("user_id");
 
   // ✅ PERBAIKAN FINAL & PALING ROBUST:
-  // Asumsi: `s` adalah objek siswa, dan `s.id` adalah properti yang tersedia (Number/String).
-  // Menggunakan String(s.id) untuk menormalisasi ID siswa menjadi String sebelum dibandingkan dengan currentUserId (String).
+  // Kita cek properti `user_id` atau `id` (sebagai fallback) dan pastikan konversi ke String.
+  // Ini mengatasi ketidakpastian struktur data API (Array of Objects, bukan Array of IDs murni).
   const isEnrolled =
     course.students &&
-    course.students.some((s) => String(s.id) === currentUserId);
+    course.students.some((s) => String(s.user_id || s.id) === currentUserId);
 
   const handleJoin = () => {
     dispatch(asyncEnrollCourse(course.id));
