@@ -16,7 +16,9 @@ const apiHelper = (() => {
       method,
     };
 
-    // PERBAIKAN KUNCI: Paksa GET request untuk selalu mengambil data baru dari server
+    // PERBAIKAN UTAMA:
+    // Baris ini memaksa browser untuk selalu meminta data baru ke server
+    // untuk semua request GET, dan tidak menggunakan cache.
     if (method === "GET") {
       config.cache = "no-store";
     }

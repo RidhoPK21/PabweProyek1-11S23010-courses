@@ -12,7 +12,8 @@ export default function CourseDetailPage() {
   const [error, setError] = useState("");
 
   const loadCourse = async () => {
-    setLoading(true);
+    // Tidak set loading di sini agar UI tidak berkedip saat refresh
+    setError("");
     try {
       const res = await CourseApi.getCourseById(id);
       if (res.success) {
@@ -35,11 +36,12 @@ export default function CourseDetailPage() {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setLoading(false); // Loading hanya di-set false di akhir
     }
   };
 
   useEffect(() => {
+    setLoading(true); // Set loading true hanya saat komponen pertama kali dimuat
     loadCourse();
   }, [id]);
 
@@ -56,10 +58,11 @@ export default function CourseDetailPage() {
     });
   };
 
-  if (loading || !course)
-    return <div className="container-fluid">Loading...</div>;
+  if (loading) return <div className="container-fluid">Loading...</div>;
   if (error)
     return <div className="container-fluid alert alert-danger">{error}</div>;
+  if (!course)
+    return <div className="container-fluid">Course data not found.</div>;
 
   const coverUrl =
     course.cover && course.cover.startsWith("http")

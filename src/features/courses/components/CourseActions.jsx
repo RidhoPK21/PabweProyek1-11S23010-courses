@@ -19,7 +19,7 @@ function CourseActions({ course, onDataChange }) {
     try {
       await CourseApi.addStudent(course.id);
       alert("You have successfully joined this course!");
-      setTimeout(onDataChange, 500); // Gunakan onDataChange
+      onDataChange(); // Memanggil fungsi refresh data
     } catch (error) {
       alert("Failed to join course: " + error.message);
     }
@@ -30,7 +30,7 @@ function CourseActions({ course, onDataChange }) {
       try {
         await CourseApi.leaveCourse(course.id);
         alert("You have successfully left the course.");
-        setTimeout(onDataChange, 500);
+        onDataChange();
       } catch (error) {
         alert("Failed to leave course: " + error.message);
       }
